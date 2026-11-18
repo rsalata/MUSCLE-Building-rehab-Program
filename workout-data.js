@@ -1604,10 +1604,10 @@ const WORKOUT_PROGRAMS = {
         "name": "Twice weekly: Same workout twice per week",
         "exercises": [
           {
-            "name": "Forward & Backward specialized equipment",
-            "sets": "1.0",
-            "reps": "50 yards each way",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Comfortable warm-up."
           },
           {
             "name": "Pull-up Progression",
@@ -1674,7 +1674,9 @@ const WORKOUT_PROGRAMS = {
             "sets": "1.0",
             "reps": "20",
             "notes": ""
-          }
+          },
+          {"name":"Reverse Step-Ups","sets":"2","reps":"12 per leg","notes":"Controlled low step."},
+          {"name":"Leg Extensions","sets":"2","reps":"12–15","notes":"Light resistance; comfortable range."}
         ]
       }
     },
