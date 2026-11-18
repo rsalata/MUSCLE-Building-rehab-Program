@@ -435,10 +435,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Mon",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Back Squat",
@@ -476,10 +488,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Tue",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Front Squat",
@@ -511,10 +535,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Wed",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Back Squat",
@@ -552,10 +588,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Thu",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Front Squat",
@@ -587,10 +635,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Fri",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Back Squat",
@@ -628,10 +688,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Sat",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Front Squat",
@@ -685,10 +757,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Mon",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 10 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "10 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Back Squat",
@@ -726,10 +810,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Tue",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 10 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "10 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Front Squat",
@@ -761,10 +857,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Wed",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 10 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "10 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Back Squat",
@@ -802,10 +910,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Thu",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 10 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "10 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Front Squat",
@@ -837,10 +957,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Fri",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 10 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "10 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Back Squat",
@@ -878,10 +1010,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Sat",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 10 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "10 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Front Squat",
@@ -935,10 +1079,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Mon",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Back Squat",
@@ -976,10 +1132,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Tue",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Front Squat",
@@ -1011,10 +1179,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Wed",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Back Squat",
@@ -1052,10 +1232,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Thu",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Front Squat",
@@ -1087,10 +1279,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Fri",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Back Squat",
@@ -1128,10 +1332,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Sat",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Front Squat",
@@ -1185,10 +1401,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Mon",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Test Back Squat",
@@ -1208,10 +1436,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Tue",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Pullup",
@@ -1237,10 +1477,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Wed",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Test Romanian Deadlift",
@@ -1260,10 +1512,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Thu",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Test ATG Incline Press",
@@ -1283,10 +1547,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Fri",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 3 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Test Front Squat",
@@ -2376,10 +2652,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Tue: FLEXION A",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 5 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Tibialis Raise",
@@ -2510,10 +2798,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Thu: EXTENSION B",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 5 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Bent Leg Calf Raise",
@@ -2559,10 +2859,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Fri: FLEXION B",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 5 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Tibialis Raise",
@@ -2709,10 +3021,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Mon",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 5 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Sled",
@@ -2744,10 +3068,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Wed",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 5 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Sled",
@@ -2779,10 +3115,22 @@ const WORKOUT_PROGRAMS = {
         "name": "Fri",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 5 Mins",
-            "notes": ""
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
+            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+          },
+          {
+            "name": "Reverse Step-Ups",
+            "sets": "2",
+            "reps": "12 per leg",
+            "notes": "Low step, controlled lowering, use support if needed."
+          },
+          {
+            "name": "Leg Extensions",
+            "sets": "2",
+            "reps": "12–15",
+            "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
             "name": "Sled",
