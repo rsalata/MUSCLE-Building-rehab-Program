@@ -1947,10 +1947,10 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "100 yards Forward and Backward",
-            "notes": "Optional movement."
+            "name": "Stationary Bike (Sled Alternative)",
+            "sets": "1",
+            "reps": "5–10 minutes",
+            "notes": "Optional movement.. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
           }
         ]
       },
@@ -2026,10 +2026,10 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "100 yards Forward and Backward",
-            "notes": "Optional movement."
+            "name": "Stationary Bike (Sled Alternative)",
+            "sets": "1",
+            "reps": "5–10 minutes",
+            "notes": "Optional movement.. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
           }
         ]
       }
@@ -2110,10 +2110,10 @@ const WORKOUT_PROGRAMS = {
         "name": "Tue: Week A - Ankle",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "3.0",
-            "reps": "100 backward + 50 steps forward",
-            "notes": "Week A"
+            "name": "Stationary Bike (Sled Alternative)",
+            "sets": "1",
+            "reps": "5–10 minutes",
+            "notes": "Week A. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Ankle Step",
@@ -2369,10 +2369,10 @@ const WORKOUT_PROGRAMS = {
         "name": "Tue: Week B - Ankle",
         "exercises": [
           {
-            "name": "Sled",
-            "sets": "3.0",
-            "reps": "100 backward + 50 steps forward",
-            "notes": "Week B"
+            "name": "Stationary Bike (Sled Alternative)",
+            "sets": "1",
+            "reps": "5–10 minutes",
+            "notes": "Week B. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Ankle Step",
@@ -2635,10 +2635,10 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Backwards for 5 Mins",
-            "notes": "Optional movement."
+            "name": "Stationary Bike (Sled Alternative)",
+            "sets": "1",
+            "reps": "5–10 minutes",
+            "notes": "Optional movement.. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Neck Bridge",
@@ -3039,10 +3039,10 @@ const WORKOUT_PROGRAMS = {
             "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Forwards for 5 Mins",
-            "notes": ""
+            "name": "Stationary Bike (Sled Alternative)",
+            "sets": "1",
+            "reps": "5–10 minutes",
+            "notes": "Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Pigeon",
@@ -3086,10 +3086,10 @@ const WORKOUT_PROGRAMS = {
             "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Forwards for 5 Mins",
-            "notes": ""
+            "name": "Stationary Bike (Sled Alternative)",
+            "sets": "1",
+            "reps": "5–10 minutes",
+            "notes": "Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Pigeon",
@@ -3133,10 +3133,10 @@ const WORKOUT_PROGRAMS = {
             "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
-            "name": "Sled",
-            "sets": "1.0",
-            "reps": "Forwards for 5 Mins",
-            "notes": ""
+            "name": "Stationary Bike (Sled Alternative)",
+            "sets": "1",
+            "reps": "5–10 minutes",
+            "notes": "Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Pigeon",
