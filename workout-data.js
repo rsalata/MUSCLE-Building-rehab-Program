@@ -1705,9 +1705,9 @@ const WORKOUT_PROGRAMS = {
         "name": "Workout 1",
         "exercises": [
           {
-            "name": "Forward & Backward specialized equipment",
-            "sets": "1.0",
-            "reps": "100 yards each way",
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
             "notes": ""
           },
           {
@@ -1782,9 +1782,9 @@ const WORKOUT_PROGRAMS = {
         "name": "Workout 2",
         "exercises": [
           {
-            "name": "Forward & Backward specialized equipment",
-            "sets": "1.0",
-            "reps": "100 yards each way",
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5–8 minutes",
             "notes": ""
           },
           {
@@ -3186,7 +3186,7 @@ const WORKOUT_PROGRAMS = {
         "name": "Mon",
         "exercises": [
           {
-            "name": "Adductor specialized equipment",
+            "name": "Adductor Machine",
             "sets": "1.0",
             "reps": "10 Mins",
             "notes": ""
@@ -3221,7 +3221,7 @@ const WORKOUT_PROGRAMS = {
         "name": "Wed",
         "exercises": [
           {
-            "name": "Adductor specialized equipment",
+            "name": "Adductor Machine",
             "sets": "1.0",
             "reps": "10 Mins",
             "notes": ""
@@ -3256,7 +3256,7 @@ const WORKOUT_PROGRAMS = {
         "name": "Fri",
         "exercises": [
           {
-            "name": "Adductor specialized equipment",
+            "name": "Adductor Machine",
             "sets": "1.0",
             "reps": "10 Mins",
             "notes": ""
@@ -3448,9 +3448,9 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "specialized equipment Push",
-            "sets": "5.0",
-            "reps": "Backwards/Forward for 5 Mins",
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5 minutes",
             "notes": "Optional movement."
           },
           {
@@ -3491,9 +3491,9 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "specialized equipment Push",
-            "sets": "5.0",
-            "reps": "Backwards/Forward for 5 Mins",
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5 minutes",
             "notes": "Optional movement."
           },
           {
@@ -3534,9 +3534,9 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "specialized equipment Push",
-            "sets": "5.0",
-            "reps": "Backwards/Forward for 5 Mins",
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5 minutes",
             "notes": "Optional movement."
           },
           {
@@ -3577,9 +3577,9 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "specialized equipment Push",
-            "sets": "5.0",
-            "reps": "Backwards/Forward for 5 Mins",
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5 minutes",
             "notes": "Optional movement."
           },
           {
@@ -3620,9 +3620,9 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "specialized equipment Push",
-            "sets": "5.0",
-            "reps": "Backwards/Forward for 5 Mins",
+            "name": "Stationary Bike",
+            "sets": "1",
+            "reps": "5 minutes",
             "notes": "Optional movement."
           },
           {
