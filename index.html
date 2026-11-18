@@ -111,12 +111,6 @@
     <div class="card" id="morning-routine">
       <h2 style="margin:0 0 6px">5:30 AM · Morning Mobility &amp; Shoulder</h2>
       <p class="muted" style="margin:0 0 12px">At-home routine before the gym. Check off only what you actually complete. Saved on this device by date.</p>
-      <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:12px 0">
-        <div><label for="wake-time">Wake-up time</label><select id="wake-time"><option value="05:30">5:30 AM (default)</option><option value="06:00">6:00 AM</option><option value="custom">Custom</option></select></div>
-        <div id="wake-custom-wrap" style="display:none"><label for="wake-custom">Custom time</label><input type="time" id="wake-custom" value="05:30" style="background:#0f1320;color:var(--text);border:1px solid var(--ring);padding:8px;border-radius:8px"></div>
-        <button class="timer-btn" id="wake-alarm-help" type="button">Open Apple Shortcuts</button>
-      </div>
-      <p class="note" id="wake-alarm-note">The PWA cannot sound a reliable wake-up alarm when closed. Set an actual alarm in iPhone Clock.</p>
       <div id="morning-date" class="note"></div>
       <div id="morning-steps" style="margin:12px 0"></div>
       <label for="morning-pain">Shoulder pain afterward (0–10; optional)</label>
@@ -178,30 +172,10 @@
       [11,'5 minutes: Shoulder Reliever pendulums only if comfortable and cleared'],
       [16,'Dress and leave for gym']
     ];
-    const wakeSelect=document.getElementById('wake-time');
-    const customWrap=document.getElementById('wake-custom-wrap');
-    const customInput=document.getElementById('wake-custom');
-    const savedWake=localStorage.getItem('wake_alarm_preference_v1')||'05:30';
-    wakeSelect.value=['05:30','06:00'].includes(savedWake)?savedWake:'custom';
-    customInput.value=savedWake;
-    customWrap.style.display=wakeSelect.value==='custom'?'block':'none';
-    const actualWake=()=>wakeSelect.value==='custom'?customInput.value:wakeSelect.value;
     const fmtTime=offset=>{
-      const [h,m]=actualWake().split(':').map(Number);
-      const mins=(h*60+m+offset)%(24*60);
+      const mins=(5*60+30+offset)%(24*60);
       return String(Math.floor(mins/60)).padStart(2,'0')+':'+String(mins%60).padStart(2,'0');
     };
-    const saveWake=()=>{
-      customWrap.style.display=wakeSelect.value==='custom'?'block':'none';
-      localStorage.setItem('wake_alarm_preference_v1',actualWake());
-      document.querySelectorAll('[data-wake-offset]').forEach(el=>{el.textContent=fmtTime(Number(el.dataset.wakeOffset))+' — '+steps[Number(el.dataset.wakeIndex)][1];});
-    };
-    wakeSelect.addEventListener('change',saveWake);
-    customInput.addEventListener('change',saveWake);
-    document.getElementById('wake-alarm-help').addEventListener('click',()=>{
-      document.getElementById('wake-alarm-note').textContent='Opening Shortcuts… Set a '+actualWake()+' alarm to repeat Monday–Friday. If Shortcuts does not open, launch it manually. The PWA cannot directly change Clock alarms.';
-      window.location.href='shortcuts://';
-    });
     let log = {};
     try { log = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
     const state = log[today] || {checked:[],pain:'',notes:''};
