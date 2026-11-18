@@ -1,11 +1,13 @@
 ﻿(function(){
   const STORAGE_KEY = 'workout_programs_data_v1';
   const SESSION_KEY = 'workout_programs_session_v1';
+  const PREF_KEY = 'workout_programs_active_v1';
 
-  let currentProgram = Object.keys(WORKOUT_PROGRAMS)[0];
+  let currentProgram = WORKOUT_PROGRAMS.atg_program_1 ? 'atg_program_1' : Object.keys(WORKOUT_PROGRAMS)[0];
   let currentWorkout = Object.keys(WORKOUT_PROGRAMS[currentProgram].workouts)[0];
 
   let timerIntervals = {};
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   let userData = {};
   let sessionData = {};
 
@@ -115,6 +117,7 @@
 
     const session = sessionData[sessionId];
     session.running = !session.running;
+    if (timerIntervals[sessionId]) clearInterval(timerIntervals[sessionId]);
     session.date = new Date().toISOString();
 
     if (session.running) {
@@ -171,6 +174,7 @@
     if (!content || !header) return;
 
     const isCollapsed = content.classList.contains('collapsed');
+    header.setAttribute('aria-expanded', String(isCollapsed));
 
     if (isCollapsed) {
       content.style.maxHeight = content.scrollHeight + 'px';
@@ -197,7 +201,8 @@
       programSelect.appendChild(option);
     });
 
-    currentProgram = Object.keys(WORKOUT_PROGRAMS)[0];
+    const preferred = localStorage.getItem(PREF_KEY);
+    currentProgram = preferred && WORKOUT_PROGRAMS[preferred] ? preferred : (WORKOUT_PROGRAMS.atg_program_1 ? 'atg_program_1' : Object.keys(WORKOUT_PROGRAMS)[0]);
     programSelect.value = currentProgram;
   }
 
@@ -213,7 +218,8 @@
       workoutSelect.appendChild(option);
     });
 
-    currentWorkout = Object.keys(programData.workouts)[0];
+    const preferredWorkout = localStorage.getItem('workout_programs_workout_'+program);
+    currentWorkout = preferredWorkout && programData.workouts[preferredWorkout] ? preferredWorkout : Object.keys(programData.workouts)[0];
     workoutSelect.value = currentWorkout;
     workoutLabel.textContent = 'Workout';
   }
@@ -233,7 +239,7 @@
     const notes = Array.isArray(info.notes) ? info.notes : [];
 
     generalNotes.innerHTML = notes.length
-      ? notes.map(note => `<li>${note}</li>`).join('')
+      ? notes.map(note => `<li>${escapeHtml(note)}</li>`).join('')
       : '<li>Use pain-free range of motion.</li><li>Track your workout notes each session.</li>';
   }
 
@@ -251,6 +257,7 @@
 
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         updateUserExerciseData(id, field, value);
+        if (field === 'done') e.target.closest('.exercise-card')?.classList.toggle('completed', Boolean(value));
       });
 
       input.addEventListener('change', e => {
@@ -290,7 +297,7 @@
       <p>${workoutInfo.description || ''}</p>
     `;
 
-    let html = `<h2 style="margin:0 0 16px">${programData.name || currentProgram}</h2>`;
+    let html = `<h2 style="margin:0 0 16px">${escapeHtml(programData.name || currentProgram)}</h2>`;
 
     const dayKeys = Object.keys(programData.days || {});
 
@@ -304,20 +311,16 @@
       const sessionId = getSessionId(currentProgram, currentWorkout, dayKey);
 
       const session = sessionData[sessionId] || {
-        date: new Date().toISOString(),
+        date: null,
         elapsed: 0,
         running: false
       };
 
-      const sessionDate = new Date(session.date).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
+      const sessionDate = session.date ? new Date(session.date).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Not started';
 
       html += `
         <div class="day-title">
-          <span>${day.name || dayKey}</span>
+          <span>${escapeHtml(day.name || dayKey)}</span>
           <div class="session-info">
             <span>Last: ${sessionDate}</span>
             <span class="timer" id="timer-${sessionId}">${formatTime(session.elapsed)}</span>
@@ -340,62 +343,33 @@
         const sectionTitle = prettySectionName(sectionKey);
 
         html += `
-          <div class="section-title" data-section="${sectionId}" onclick="toggleCollapse('${sectionId}')">
+          <div class="section-title" role="button" tabindex="0" aria-expanded="true" data-section="${sectionId}" onclick="toggleCollapse('${sectionId}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCollapse('${sectionId}')}">
             <span>${sectionTitle}</span>
             <span class="arrow">▼</span>
           </div>
 
           <div class="collapsible-content" id="${sectionId}" style="max-height:none;">
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Done</th>
-                    <th>Exercise</th>
-                    <th class="input-cell">Weight</th>
-                    <th class="input-cell">Sets</th>
-                    <th class="input-cell">Reps / Time</th>
-                    <th class="notes-cell">Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div class="exercise-list">
         `;
-
         exercises.forEach((ex, idx) => {
           const id = getExerciseId(currentProgram, currentWorkout, dayKey, sectionKey, idx);
           const saved = getUserExerciseData(id);
-
+          const field = (key,placeholder) => `<input type="text" aria-label="${escapeHtml(ex.name)} ${key}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(saved[key] || '')}" data-id="${id}" data-field="${key}">`;
           html += `
-            <tr>
-              <td style="text-align:center">
-                <input type="checkbox" ${saved.done ? 'checked' : ''} data-id="${id}" data-field="done">
-              </td>
-              <td>
-                <strong>${ex.name || ''}</strong>
-                ${ex.notes ? `<br><span class="note">${ex.notes}</span>` : ''}
-              </td>
-              <td class="input-cell">
-                <input type="text" placeholder="0" value="${saved.weight || ''}" data-id="${id}" data-field="weight">
-              </td>
-              <td class="input-cell">
-                <input type="text" placeholder="${ex.sets || ''}" value="${saved.sets || ''}" data-id="${id}" data-field="sets">
-              </td>
-              <td class="input-cell">
-                <input type="text" placeholder="${ex.reps || ''}" value="${saved.reps || ''}" data-id="${id}" data-field="reps">
-              </td>
-              <td class="notes-cell">
-                <input type="text" placeholder="Session notes..." value="${saved.notes || ''}" data-id="${id}" data-field="notes">
-              </td>
-            </tr>
-          `;
+            <div class="exercise-card ${saved.done ? 'completed' : ''}">
+              <div class="exercise-top">
+                <input type="checkbox" aria-label="Completed: ${escapeHtml(ex.name)}" ${saved.done ? 'checked' : ''} data-id="${id}" data-field="done">
+                <div><strong>${escapeHtml(ex.name || '')}</strong>${ex.notes ? `<div class="note">${escapeHtml(ex.notes)}</div>` : ''}</div>
+              </div>
+              <div class="exercise-fields">
+                <label>Weight ${field('weight','—')}</label>
+                <label>Sets ${field('sets',ex.sets || '—')}</label>
+                <label>Reps / time ${field('reps',ex.reps || '—')}</label>
+              </div>
+              <label class="exercise-notes">Session notes ${field('notes','Notes for this exercise')}</label>
+            </div>`;
         });
-
-        html += `
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
+        html += `</div></div>`;
       });
     });
 
@@ -425,7 +399,7 @@
     a.download = `workout-data-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
 
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   window.clearWorkoutData = function() {
@@ -442,18 +416,43 @@
     renderWorkout();
   };
 
+  window.importWorkoutData = function(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (!parsed || typeof parsed.userData !== 'object' || Array.isArray(parsed.userData) || !parsed.userData || typeof parsed.sessionData !== 'object' || Array.isArray(parsed.sessionData) || !parsed.sessionData) throw Error('Invalid backup format');
+        if (!confirm('Import this backup? It will replace current workout logs on this device. Export your current data first if needed.')) return;
+        userData = parsed.userData;
+        sessionData = parsed.sessionData;
+        Object.values(timerIntervals).forEach(clearInterval);
+        timerIntervals = {};
+        saveData(STORAGE_KEY, userData);
+        saveData(SESSION_KEY, sessionData);
+        renderWorkout();
+        alert('Workout data imported.');
+      } catch(error) { alert('Could not import this file: '+error.message); }
+      finally { event.target.value = ''; }
+    };
+    reader.readAsText(file);
+  };
+
   // =========================
   // EVENTS
   // =========================
 
   programSelect.addEventListener('change', e => {
     currentProgram = e.target.value;
+    localStorage.setItem(PREF_KEY,currentProgram);
     updateWorkoutSelector(currentProgram);
     renderWorkout();
   });
 
   workoutSelect.addEventListener('change', e => {
     currentWorkout = e.target.value;
+    localStorage.setItem('workout_programs_workout_'+currentProgram,currentWorkout);
     renderWorkout();
   });
 
