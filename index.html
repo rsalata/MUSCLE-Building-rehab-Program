@@ -108,6 +108,19 @@
     </div>
   </header>
   <main class="shell">
+    <div class="card" id="morning-routine">
+      <h2 style="margin:0 0 6px">5:30 AM · Morning Mobility &amp; Shoulder</h2>
+      <p class="muted" style="margin:0 0 12px">At-home routine before the gym. Check off only what you actually complete. Saved on this device by date.</p>
+      <div id="morning-date" class="note"></div>
+      <div id="morning-steps" style="margin:12px 0"></div>
+      <label for="morning-pain">Shoulder pain afterward (0–10; optional)</label>
+      <input id="morning-pain" type="number" min="0" max="10" step="1" placeholder="Not recorded" style="max-width:160px">
+      <label for="morning-notes" style="margin-top:10px">Symptoms / next-morning response</label>
+      <input id="morning-notes" type="text" placeholder="Optional notes; record any flare or weakness">
+      <p class="note" style="margin:10px 0 0">Shoulder Reliever: use only as tolerated and consistent with professional guidance. Stop for sharp or increasing pain. Significant ongoing shoulder pain warrants an in-person assessment. No loaded overhead work is included here.</p>
+      <button class="timer-btn" id="morning-export" style="margin-top:12px">Export morning routine log</button>
+    </div>
+
     <div class="card" id="workout-display"></div>
 
     <div class="card" id="program-info-card">
@@ -149,6 +162,41 @@
   </main>
   <footer>© 2025 — Workout Programs Tracker. No tracking, no servers.</footer>
 
+  <script>
+  (() => {
+    const key = 'morning_mobility_shoulder_v1';
+    const today = new Date().toLocaleDateString('en-CA');
+    const steps = [
+      ['5:30','Wake, water and lights on'],
+      ['5:33','8 minutes: gentle hip, ankle and spine mobility'],
+      ['5:41','5 minutes: Shoulder Reliever pendulums only if comfortable and cleared'],
+      ['5:46','Dress and leave for gym']
+    ];
+    let log = {};
+    try { log = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+    const state = log[today] || {checked:[],pain:'',notes:''};
+    document.getElementById('morning-date').textContent = 'Today: '+today;
+    const list = document.getElementById('morning-steps');
+    const save = () => { log[today]=state; localStorage.setItem(key,JSON.stringify(log)); };
+    steps.forEach(([time,label],i) => {
+      const row=document.createElement('label');
+      row.style.cssText='display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--ring);font-size:14px;color:var(--text)';
+      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=state.checked.includes(i); cb.style.marginTop='4px';
+      cb.addEventListener('change',()=>{state.checked=steps.map((_,j)=>j).filter(j=>j===i?cb.checked:state.checked.includes(j));save();});
+      const desc=document.createElement('span');desc.textContent=time+' — '+label;
+      row.append(cb,desc);list.appendChild(row);
+    });
+    const pain=document.getElementById('morning-pain');pain.value=state.pain;
+    pain.addEventListener('change',()=>{const v=pain.value;state.pain=v===''?'':String(Math.max(0,Math.min(10,Number(v))));pain.value=state.pain;save();});
+    const notes=document.getElementById('morning-notes');notes.value=state.notes;
+    notes.addEventListener('input',()=>{state.notes=notes.value;save();});
+    document.getElementById('morning-export').addEventListener('click',()=>{
+      const blob=new Blob([JSON.stringify(log,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download='morning-shoulder-log-'+today+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    });
+  })();
+  </script>
   <script src="workout-data.js"></script>
   <script src="workout-app.js"></script>
   <script>
