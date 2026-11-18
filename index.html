@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Workout Programs — PHLUL & Convict Conditioning</title>
+  <title>Muscle Building & Rehab — Workout Tracker</title>
   <style>
     :root{ --bg:#0e1116; --panel:#151926; --card:#1b2132; --text:#e6e9ee; --muted:#aab3c2; --ring:rgba(255,255,255,.08); --acc:#7dd3fc; --yellow:#ffd200; --ok:#22c55e; --bad:#ef4444; }
     *{box-sizing:border-box}
@@ -74,19 +74,36 @@
       .info-box{padding:12px;font-size:12px}
       .info-box h4{font-size:13px}
     }
+    .head>div:last-child{min-width:0}
+    #program-select{max-width:min(70vw,310px)}
+    #workout-select{max-width:150px}
+    .timer-btn{min-height:40px}
+    summary:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+    .exercise-list{display:grid;gap:10px;margin-top:12px}
+    .exercise-card{background:var(--panel);border:1px solid var(--ring);border-radius:12px;padding:12px}
+    .exercise-card.completed{border-color:var(--ok)}
+    .exercise-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px}
+    .exercise-top input[type=checkbox]{width:22px;height:22px;flex:none}
+    .exercise-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .exercise-fields label{min-width:0}
+    .exercise-fields input{min-width:0}
+    .exercise-notes{margin-top:8px}
+    .exercise-notes input{width:100%}
+    @media(min-width:850px){.exercise-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:720px){.head{align-items:flex-start}.head>div:last-child{width:100%;margin-left:0!important}#program-select{max-width:65vw}}
   </style>
   <meta name="theme-color" content="#0e1116">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Workout Programs">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <meta name="apple-mobile-web-app-title" content="Muscle & Rehab">
+  <link rel="apple-touch-icon" href="./icon.png">
   <link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body>
   <header>
     <div class="head">
       <div class="logo"><span>W</span><span>M</span></div>
-      <h1>Workout Programs <span class="badge" id="program-badge">PHLUL</span></h1>
+      <h1>Muscle Building &amp; Rehab <span class="badge" id="program-badge">ATG Program #1</span></h1>
       <div style="margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:8px">
           <label for="program-select" class="muted" style="font-size:12px;margin:0">Program</label>
@@ -108,7 +125,7 @@
     </div>
   </header>
   <main class="shell">
-    <div class="card" id="morning-routine">
+    <details class="card" id="morning-routine"><summary style="font-weight:700;cursor:pointer;font-size:17px;color:var(--acc)">Morning mobility &amp; shoulder · 5:30 AM</summary><div style="padding-top:12px">
       <h2 style="margin:0 0 6px">5:30 AM · Morning Mobility &amp; Shoulder</h2>
       <p class="muted" style="margin:0 0 12px">At-home routine before the gym. Check off only what you actually complete. Saved on this device by date.</p>
       <div id="morning-date" class="note"></div>
@@ -119,7 +136,7 @@
       <input id="morning-notes" type="text" placeholder="Optional notes; record any flare or weakness">
       <p class="note" style="margin:10px 0 0">Shoulder Reliever: use only as tolerated and consistent with professional guidance. Stop for sharp or increasing pain. Significant ongoing shoulder pain warrants an in-person assessment. No loaded overhead work is included here.</p>
       <button class="timer-btn" id="morning-export" style="margin-top:12px">Export morning routine log</button>
-    </div>
+    </div></details>
 
     <div class="card" id="workout-display"></div>
 
@@ -153,14 +170,14 @@
       <h3 style="margin:0 0 12px">Data Management</h3>
       <p class="muted" style="margin:0 0 12px">Export your workout data as a backup or to transfer to another device. Import previously exported data to restore your progress.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <button class="timer-btn" onclick="exportData()" style="flex:1;min-width:140px">📥 Export Data</button>
+        <button class="timer-btn" onclick="exportWorkoutData()" style="flex:1;min-width:140px">📥 Export Data</button>
         <button class="timer-btn" onclick="document.getElementById('import-file').click()" style="flex:1;min-width:140px">📤 Import Data</button>
-        <button class="timer-btn" onclick="clearAllData()" style="flex:1;min-width:140px;border-color:var(--bad);color:var(--bad)">🗑️ Clear All Data</button>
+        <button class="timer-btn" onclick="clearWorkoutData()" style="flex:1;min-width:140px;border-color:var(--bad);color:var(--bad)">🗑️ Clear All Data</button>
       </div>
-      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importWorkoutData(event)">
     </div>
   </main>
-  <footer>© 2025 — Workout Programs Tracker. No tracking, no servers.</footer>
+  <footer>Muscle Building &amp; Rehab · Data saved locally on this device. Export a backup regularly.</footer>
 
   <script>
   (() => {
