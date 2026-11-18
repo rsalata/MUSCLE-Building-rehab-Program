@@ -104,6 +104,73 @@
       .replace(/\b\w/g, char => char.toUpperCase());
   }
 
+
+  // Movement preparation is supplementary; original program prescriptions are unchanged.
+  const PREP_KEY = 'workout_movement_prep_v1';
+  const prepLibrary = {
+    bike: {name:'Stationary bike or easy march',dose:'2–3 minutes',why:'Gradually increase circulation and body temperature.',how:'Start at a comfortable pace; finish feeling warmer, not fatigued.',next:'Increase pace slightly only when the current effort feels comfortable.'},
+    ankle: {name:'Supported ankle rocks',dose:'8–10 per side',why:'Prepare ankle motion for stepping and squatting.',how:'With heel down, move knee gently forward over toes; use support.',next:'Move slightly farther without lifting the heel or forcing range.'},
+    hip: {name:'Supported hip rotations',dose:'6–8 per side',why:'Practice controlled hip motion before lower-body training or grappling.',how:'Hold a wall or bench and make small smooth circles.',next:'Gradually enlarge the circle while keeping control.'},
+    hinge: {name:'Unloaded hip hinges',dose:'8 reps',why:'Rehearse hip movement before loading.',how:'Push hips back with a comfortable neutral trunk and return to standing.',next:'Use a slightly deeper hinge only if comfortable.'},
+    scap: {name:'Shoulder blade circles',dose:'8 slow reps',why:'Prepare shoulder blade movement for upper-body work.',how:'Move shoulder blades slowly without shrugging into discomfort.',next:'Try controlled wall slides within a comfortable range.'},
+    thoracic: {name:'Gentle thoracic rotations',dose:'5 per side',why:'Prepare upper-back rotation for lifting and grappling.',how:'Rotate through upper back without forcing the neck or lower back.',next:'Increase smooth control before increasing range.'},
+    press: {name:'Light movement rehearsal',dose:'1–2 minutes',why:'Practice the first lift without heavy loading.',how:'Use an unloaded or very light version of your first movement.',next:'Build load gradually during your normal warm-up sets.'},
+    bridge: {name:'Gentle bridges',dose:'6 reps',why:'Practice controlled hip extension for mat movement.',how:'Lift hips only as far as comfortable, then lower slowly.',next:'Increase control before adding repetitions.'},
+    breathe: {name:'Relaxed breathing',dose:'1 minute',why:'Settle breathing and reduce unnecessary tension.',how:'Breathe slowly in a comfortable position.',next:'Keep this restorative rather than increasing difficulty.'},
+    calf: {name:'Gentle calf stretch',dose:'20–30 seconds each',why:'Ease calf tightness after activity.',how:'Hold a comfortable stretch with heel supported; avoid bouncing.',next:'Extend the hold slightly if comfortable.'},
+    open: {name:'Supported hip flexor stretch',dose:'20–30 seconds each',why:'Provide gentle hip extension after training.',how:'Use a supported split stance, slight pelvic tuck, and light stretch.',next:'Improve positioning rather than forcing depth.'}
+  };
+  let prepLog={};
+  try{prepLog=JSON.parse(localStorage.getItem(PREP_KEY)||'{}')||{}}catch(e){}
+  function prepDayType(programKey,dayKey,day){
+    const label=(programKey+' '+dayKey+' '+(day.name||'')).toLowerCase();
+    const exerciseNames=Object.values(day).filter(Array.isArray).flat().map(x=>(x.name||'').toLowerCase()).join(' ');
+    if(/bjj|grappl|wrestl|martial/.test(label))return 'bjj';
+    if(/recovery|rest|mobility|stretch|flexib/.test(label))return 'recovery';
+    if(/upper|chest|shoulder|press|back|arm|pull/.test(label))return 'upper';
+    if(/lower|leg|squat|knee|atg|dunk|jump|glute|foot|posterior|groin/.test(label))return 'lower';
+    if(/squat|lunge|split squat|nordic|calf|tibialis/.test(exerciseNames))return 'lower';
+    if(/press|row|pull-up|chin-up/.test(exerciseNames))return 'upper';
+    return 'general';
+  }
+  function prepSteps(type){
+    return ({upper:['bike','scap','thoracic','press'],lower:['bike','ankle','hip','hinge'],bjj:['bike','hip','thoracic','bridge'],recovery:['bike','hip','thoracic','breathe'],general:['bike','hip','scap','press']})[type];
+  }
+  function prepKey(sessionId,kind){return new Date().toLocaleDateString('en-CA')+'|'+sessionId+'|'+kind}
+  function prepEntry(id){return prepLog[id]||{checked:[],notes:''}}
+  function savePrep(){try{localStorage.setItem(PREP_KEY,JSON.stringify(prepLog))}catch(e){console.warn('Preparation save failed',e)}}
+  function renderPrep(sessionId,type){
+    const warm=prepSteps(type);
+    const cool=type==='upper'?['scap','breathe']:type==='lower'?['calf','open','breathe']:['hip','breathe'];
+    const group=(kind,ids,title,description)=>{
+      const key=prepKey(sessionId,kind),state=prepEntry(key);
+      return `<details class="prep-group" ${kind==='warm'?'open':''}>
+        <summary><strong>${title}</strong> <span class="muted">· ${state.checked.length}/${ids.length} checked</span></summary>
+        <p class="note">${description}</p>
+        ${ids.map((id,i)=>{const ex=prepLibrary[id];return `<div class="prep-move">
+          <label class="prep-check"><input type="checkbox" data-prep-key="${escapeHtml(key)}" data-prep-index="${i}" ${state.checked.includes(i)?'checked':''}><span>${escapeHtml(ex.name)} <small class="muted">· ${escapeHtml(ex.dose)}</small></span></label>
+          <details class="prep-how"><summary>Why · How · Progress</summary><p><b>Why:</b> ${escapeHtml(ex.why)}</p><p><b>How:</b> ${escapeHtml(ex.how)}</p><p><b>When comfortable:</b> ${escapeHtml(ex.next)}</p></details>
+        </div>`}).join('')}
+        <label class="prep-note-label">How did it feel? <input type="text" data-prep-note="${escapeHtml(key)}" placeholder="Optional: stiffness, pain, modifications" value="${escapeHtml(state.notes||'')}"></label>
+      </details>`;
+    };
+    return `<div class="prep-wrap">${group('warm',warm,'1. Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}
+    <div class="prep-strength-title">2. Strength workout · prescribed exercises below</div>
+    ${group('cool',cool,'3. Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
+  }
+  function attachPrepListeners(){
+    workoutDisplay.querySelectorAll('[data-prep-key]').forEach(el=>el.addEventListener('change',()=>{
+      const key=el.dataset.prepKey,index=Number(el.dataset.prepIndex),state=prepEntry(key);
+      state.checked=el.checked?[...new Set([...state.checked,index])]:state.checked.filter(i=>i!==index);
+      prepLog[key]=state;savePrep();
+      const summary=el.closest('.prep-group')?.querySelector('summary .muted');
+      if(summary)summary.textContent='· '+state.checked.length+'/'+el.closest('.prep-group').querySelectorAll('[data-prep-key]').length+' checked';
+    }));
+    workoutDisplay.querySelectorAll('[data-prep-note]').forEach(el=>el.addEventListener('input',()=>{
+      const key=el.dataset.prepNote,state=prepEntry(key);state.notes=el.value;prepLog[key]=state;savePrep();
+    }));
+  }
+
   // =========================
   // TIMERS
   // =========================
@@ -338,6 +405,8 @@
         </div>
       `;
 
+      html += renderPrep(sessionId,prepDayType(currentProgram,dayKey,day));
+
       Object.keys(day).forEach(sectionKey => {
         if (sectionKey === 'name') return;
         if (!Array.isArray(day[sectionKey])) return;
@@ -381,6 +450,7 @@
 
     workoutDisplay.innerHTML = html;
     attachInputListeners();
+    attachPrepListeners();
   }
 
   // =========================
@@ -393,6 +463,7 @@
       sessionData,
       morningData: loadData('morning_mobility_shoulder_v1'),
       mobilityData: loadData('mobility_sessions_v1'),
+      prepData: prepLog,
       exportedAt: new Date().toISOString()
     };
 
@@ -444,6 +515,7 @@
         saveData(SESSION_KEY, sessionData);
         if (parsed.morningData && typeof parsed.morningData === 'object' && !Array.isArray(parsed.morningData)) saveData('morning_mobility_shoulder_v1',parsed.morningData);
         if (parsed.mobilityData && typeof parsed.mobilityData === 'object' && !Array.isArray(parsed.mobilityData)) saveData('mobility_sessions_v1',parsed.mobilityData);
+        if (parsed.prepData && typeof parsed.prepData === 'object' && !Array.isArray(parsed.prepData)){prepLog=parsed.prepData;savePrep();}
         renderWorkout();
         alert('Workout data imported. Reload the app to refresh the morning routine.');
       } catch(error) { alert('Could not import this file: '+error.message); }
