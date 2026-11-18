@@ -138,6 +138,29 @@
       <button class="timer-btn" id="morning-export" style="margin-top:12px">Export morning routine log</button>
     </div></details>
 
+    <details class="card" id="mobility-hub" open>
+      <summary style="font-weight:700;cursor:pointer;font-size:18px;color:var(--acc)">Daily &amp; focused mobility</summary>
+      <p class="muted">Separate from strength programs. Select a routine, record only what you complete, and adjust range to comfort. No session is assumed.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+        <label style="flex:1;min-width:200px">Routine
+          <select id="mobility-select" style="width:100%">
+            <option value="daily">Daily reset · 8–10 min</option>
+            <option value="preclass">Pre-class / pre-lift · 6–8 min</option>
+            <option value="shoulder">Shoulder &amp; upper back · 10 min</option>
+            <option value="hips">Hips &amp; groin · 10 min</option>
+            <option value="ankles">Ankles &amp; knees · 8 min</option>
+            <option value="spine">Gentle spine &amp; trunk · 8 min</option>
+          </select>
+        </label>
+        <button class="timer-btn" id="mobility-clear">Reset today's checks</button>
+      </div>
+      <div id="mobility-date" class="note" style="margin-top:8px"></div>
+      <div id="mobility-steps" style="margin-top:10px"></div>
+      <label for="mobility-notes">Notes / limitations (optional)</label>
+      <input id="mobility-notes" type="text" placeholder="What felt restricted or comfortable?">
+      <p class="note">Use controlled, comfortable movement. Skip anything causing sharp, increasing, or radiating pain. Mobility work does not replace assessment of persistent symptoms.</p>
+    </details>
+
     <div class="card" id="workout-display"></div>
 
     <div class="card" id="program-info-card">
@@ -216,6 +239,48 @@
       const url=URL.createObjectURL(blob),a=document.createElement('a');
       a.href=url;a.download='morning-shoulder-log-'+today+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     });
+  })();
+  </script>
+  <script>
+  (() => {
+    const key='mobility_sessions_v1';
+    const today=new Date().toLocaleDateString('en-CA');
+    const routines={
+      daily:[['Easy walk or march','1 min'],['Ankle circles','30 sec each'],['Supported hip circles','45 sec'],['Gentle cat-cow','6 slow reps'],['Thoracic open books','5 each side'],['Shoulder blade circles','8 slow reps'],['Comfortable calf stretch','30 sec each']],
+      preclass:[['Walk or easy bike','2 min'],['Hip hinge practice','8 reps'],['Supported lateral weight shifts','8 each'],['Thoracic rotations','6 each'],['Gentle neck and shoulder rolls','30 sec'],['Movement-specific warm-up','2 min']],
+      shoulder:[['Shoulder blade squeezes','10 reps'],['Gentle pendulum','45 sec'],['Wall slides in comfortable range','6–8 reps'],['Thoracic open books','6 each'],['Chest opening with arms low','30 sec'],['Relaxed breathing','1 min']],
+      hips:[['Supported hip circles','8 each'],['Adductor rock-backs','8 each'],['90/90 hip transitions (supported)','6 slow reps'],['Gentle hip flexor stretch','30 sec each'],['Supported squat hold if comfortable','20–30 sec']],
+      ankles:[['Ankle circles','10 each direction'],['Knee-to-wall ankle rocks','8 each'],['Standing calf raises','10 slow reps'],['Wall tibialis raises','10 reps'],['Supported step-ups, low step','6 each']],
+      spine:[['Easy walking','2 min'],['Diaphragmatic breathing','1 min'],['Gentle pelvic tilts','8 reps'],['Cat-cow in comfortable range','6 reps'],['Bird-dog, short reach','5 each'],['Thoracic open books','5 each']]
+    };
+    const select=document.getElementById('mobility-select');
+    const steps=document.getElementById('mobility-steps');
+    const note=document.getElementById('mobility-notes');
+    const date=document.getElementById('mobility-date');
+    let store={};try{store=JSON.parse(localStorage.getItem(key)||'{}')||{}}catch(e){}
+    const save=()=>{try{localStorage.setItem(key,JSON.stringify(store))}catch(e){console.warn('Mobility save failed',e)}};
+    const get=()=>{const id=today+'|'+select.value;return [id,store[id]||{checked:[],notes:''}]};
+    const render=()=>{
+      const [id,state]=get();
+      date.textContent='Today: '+today+' · '+state.checked.length+' of '+routines[select.value].length+' checked';
+      steps.replaceChildren();
+      routines[select.value].forEach(([name,duration],i)=>{
+        const row=document.createElement('label');
+        row.style.cssText='display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--ring);font-size:14px;color:var(--text)';
+        const cb=document.createElement('input');cb.type='checkbox';cb.checked=state.checked.includes(i);cb.style.cssText='width:22px;height:22px;flex:none';
+        cb.addEventListener('change',()=>{const [key2,record]=get();record.checked=cb.checked?[...new Set([...record.checked,i])]:record.checked.filter(n=>n!==i);store[key2]=record;save();date.textContent='Today: '+today+' · '+record.checked.length+' of '+routines[select.value].length+' checked'});
+        const span=document.createElement('span');span.textContent=name+' · '+duration;
+        row.append(cb,span);steps.append(row);
+      });
+      note.value=state.notes||'';
+    };
+    select.addEventListener('change',render);
+    note.addEventListener('input',()=>{const [id,state]=get();state.notes=note.value;store[id]=state;save()});
+    document.getElementById('mobility-clear').addEventListener('click',()=>{
+      if(!confirm('Reset checks for this routine today?'))return;
+      const [id,state]=get();state.checked=[];store[id]=state;save();render();
+    });
+    render();
   })();
   </script>
   <script src="workout-data.js"></script>
