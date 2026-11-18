@@ -50,6 +50,8 @@
 
   userData = loadData(STORAGE_KEY);
   sessionData = loadData(SESSION_KEY);
+  Object.values(sessionData).forEach(session => { if (session && session.running) { session.running = false; delete session.startTime; } });
+  saveData(SESSION_KEY,sessionData);
 
   // =========================
   // HELPERS
@@ -140,7 +142,7 @@
     clearInterval(timerIntervals[sessionId]);
 
     sessionData[sessionId] = {
-      date: new Date().toISOString(),
+      date: sessionData[sessionId]?.date || null,
       elapsed: 0,
       running: false
     };
@@ -385,6 +387,7 @@
     const payload = {
       userData,
       sessionData,
+      morningData: loadData('morning_mobility_shoulder_v1'),
       exportedAt: new Date().toISOString()
     };
 
@@ -410,6 +413,8 @@
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(SESSION_KEY);
 
+    Object.values(timerIntervals).forEach(clearInterval);
+    timerIntervals = {};
     userData = {};
     sessionData = {};
 
@@ -431,6 +436,7 @@
         timerIntervals = {};
         saveData(STORAGE_KEY, userData);
         saveData(SESSION_KEY, sessionData);
+        if (parsed.morningData && typeof parsed.morningData === 'object' && !Array.isArray(parsed.morningData)) saveData('morning_mobility_shoulder_v1',parsed.morningData);
         renderWorkout();
         alert('Workout data imported.');
       } catch(error) { alert('Could not import this file: '+error.message); }
