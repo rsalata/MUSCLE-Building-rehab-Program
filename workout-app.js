@@ -116,32 +116,69 @@
     thoracic: {name:'Gentle thoracic rotations',dose:'5 per side',why:'Prepare upper-back rotation for lifting and grappling.',how:'Rotate through upper back without forcing the neck or lower back.',next:'Increase smooth control before increasing range.'},
     press: {name:'Light movement rehearsal',dose:'1–2 minutes',why:'Practice the first lift without heavy loading.',how:'Use an unloaded or very light version of your first movement.',next:'Build load gradually during your normal warm-up sets.'},
     bridge: {name:'Gentle bridges',dose:'6 reps',why:'Practice controlled hip extension for mat movement.',how:'Lift hips only as far as comfortable, then lower slowly.',next:'Increase control before adding repetitions.'},
+    brace: {name:'Gentle abdominal brace with breathing',dose:'5 slow breaths',why:'Practice trunk control before hinging.',how:'Breathe normally while gently tightening your midsection; avoid holding your breath.',next:'Practice the same control in an unloaded hinge.'},
+    calfraise: {name:'Supported calf raises',dose:'8 slow reps',why:'Prepare ankle and calf loading.',how:'Hold a support and rise onto toes slowly; keep the motion comfortable.',next:'Add control before adding repetitions.'},
+    balance: {name:'Supported single-leg balance',dose:'15 seconds each',why:'Prepare foot and ankle control.',how:'Stand near a stable support and lightly hold it as needed.',next:'Reduce hand support only when steady.'},
+    adductor: {name:'Gentle adductor rock-backs',dose:'6 each side',why:'Explore controlled inner-thigh and hip movement.',how:'From hands and knees, extend one leg sideways and rock back slightly within comfort.',next:'Gradually improve control rather than forcing stretch depth.'},
+    wallslide: {name:'Comfortable wall slides',dose:'6 slow reps',why:'Practice coordinated shoulder blade motion.',how:'Slide arms up a wall only through a comfortable, non-pinching range.',next:'Increase range only when consistently comfortable.'},
     breathe: {name:'Relaxed breathing',dose:'1 minute',why:'Settle breathing and reduce unnecessary tension.',how:'Breathe slowly in a comfortable position.',next:'Keep this restorative rather than increasing difficulty.'},
     calf: {name:'Gentle calf stretch',dose:'20–30 seconds each',why:'Ease calf tightness after activity.',how:'Hold a comfortable stretch with heel supported; avoid bouncing.',next:'Extend the hold slightly if comfortable.'},
     open: {name:'Supported hip flexor stretch',dose:'20–30 seconds each',why:'Provide gentle hip extension after training.',how:'Use a supported split stance, slight pelvic tuck, and light stretch.',next:'Improve positioning rather than forcing depth.'}
   };
   let prepLog={};
   try{prepLog=JSON.parse(localStorage.getItem(PREP_KEY)||'{}')||{}}catch(e){}
+  // Classify by the actual exercise mix first; day titles only break ties.
+  const DAY_TYPES=['lower','upper','posterior','ankle','hip','shoulder','mobility','bjj','mixed'];
   function prepDayType(programKey,dayKey,day){
-    const label=(programKey+' '+dayKey+' '+(day.name||'')).toLowerCase();
-    const exerciseNames=Object.values(day).filter(Array.isArray).flat().map(x=>(x.name||'').toLowerCase()).join(' ');
-    if(/bjj|grappl|wrestl|martial/.test(label))return 'bjj';
-    if(/recovery|rest|mobility|stretch|flexib/.test(label))return 'recovery';
-    if(/upper|chest|shoulder|press|back|arm|pull/.test(label))return 'upper';
-    if(/lower|leg|squat|knee|atg|dunk|jump|glute|foot|posterior|groin/.test(label))return 'lower';
-    if(/squat|lunge|split squat|nordic|calf|tibialis/.test(exerciseNames))return 'lower';
-    if(/press|row|pull-up|chin-up/.test(exerciseNames))return 'upper';
-    return 'general';
+    const title=(dayKey+' '+(day.name||'')).toLowerCase();
+    const names=Object.values(day).filter(Array.isArray).flat().map(x=>(x.name||'').toLowerCase());
+    const meaningful=names.filter(x=>!/^(rest|stationary bike|stationary bike \\(gym alternative\\)|warm.?up|walking)$/.test(x));
+    const count=(rx)=>meaningful.filter(x=>rx.test(x)).length;
+    const lower=count(/squat|step.?up|lunge|split squat|calf|tibialis|knee|leg extension|leg curl|poliquin|kot |fhl /);
+    const upper=count(/press|pull.?up|chin.?up|row|dip|push.?up|tricep|bicep|shoulder|overhead|pullover/);
+    const posterior=count(/deadlift|romanian|nordic|hamstring|back extension|good.?morning|jefferson|hinge|glute|hip thrust/);
+    const ankle=count(/ankle|tibialis|calf|foot|toe|achilles/);
+    const hip=count(/groin|adductor|pigeon|pancake|hip flexor|copenhagen|butterfly/);
+    const shoulder=count(/shoulder|rotator|scapula|overhead/);
+    const mobility=count(/stretch|mobility|rotation|pigeon|pancake|couch|floss|pulse|flexibility/);
+    const athletic=count(/jump|plyometric|depth drop|power clean|elasticity|rhythm/);
+    if(/bjj|grappl|wrestl|martial/.test(title))return 'bjj';
+    if(/\brest\b/.test(title) && meaningful.length===0)return 'mobility';
+    if(/mobility|weak.links|stretch/.test(title) && mobility>=Math.max(1,meaningful.length*.45))return 'mobility';
+    if(/ankle|foot ability/.test(title) && ankle>=2)return 'ankle';
+    if(/hip|groin/.test(title) && hip>=2)return 'hip';
+    if(/shoulder/.test(title) && shoulder>=2)return 'shoulder';
+    if(/posterior|deadlift|hamstring/.test(title) && posterior>=2)return 'posterior';
+    if(athletic>=2 && lower>=upper)return 'lower';
+    if(lower>=2 && upper>=2 && Math.min(lower,upper)/Math.max(lower,upper)>=.45)return 'mixed';
+    if(posterior>=2 && posterior>=lower && posterior>upper)return 'posterior';
+    if(lower>upper && lower>0)return 'lower';
+    if(upper>lower && upper>0)return shoulder>=2 && shoulder>=upper*.5?'shoulder':'upper';
+    if(mobility>=2 && mobility>=meaningful.length*.4)return 'mobility';
+    if(ankle>=2)return 'ankle';
+    if(hip>=2)return 'hip';
+    if(/upper|chest|arms/.test(title))return 'upper';
+    if(/lower|leg|knees|dunk/.test(title))return 'lower';
+    return 'mixed';
   }
-  function prepSteps(type){
-    return ({upper:['bike','scap','thoracic','press'],lower:['bike','ankle','hip','hinge'],bjj:['bike','hip','thoracic','bridge'],recovery:['bike','hip','thoracic','breathe'],general:['bike','hip','scap','press']})[type];
-  }
+  const PREP_PLANS={
+    upper:{warm:['bike','scap','thoracic','press'],cool:['scap','breathe']},
+    lower:{warm:['bike','ankle','hip','hinge'],cool:['calf','open','breathe']},
+    posterior:{warm:['bike','hinge','hip','brace'],cool:['breathe','open']},
+    ankle:{warm:['bike','ankle','calfraise','balance'],cool:['calf','breathe']},
+    hip:{warm:['bike','hip','adductor','hinge'],cool:['open','breathe']},
+    shoulder:{warm:['bike','scap','thoracic','wallslide'],cool:['scap','breathe']},
+    mobility:{warm:['bike','hip','thoracic','breathe'],cool:['breathe']},
+    bjj:{warm:['bike','hip','thoracic','bridge'],cool:['hip','breathe']},
+    mixed:{warm:['bike','ankle','scap','hinge'],cool:['calf','breathe']}
+  };
+  function prepSteps(type,phase){return PREP_PLANS[type]?.[phase]||PREP_PLANS.mixed[phase]}
   function prepKey(sessionId,kind){return new Date().toLocaleDateString('en-CA')+'|'+sessionId+'|'+kind}
   function prepEntry(id){return prepLog[id]||{checked:[],notes:''}}
   function savePrep(){try{localStorage.setItem(PREP_KEY,JSON.stringify(prepLog))}catch(e){console.warn('Preparation save failed',e)}}
   function renderPrep(sessionId,type,phase){
-    const warm=prepSteps(type);
-    const cool=type==='upper'?['scap','breathe']:type==='lower'?['calf','open','breathe']:['hip','breathe'];
+    const warm=prepSteps(type,'warm');
+    const cool=prepSteps(type,'cool');
     const group=(kind,ids,title,description)=>{
       const key=prepKey(sessionId,kind),state=prepEntry(key);
       return `<details class="prep-group" ${kind==='warm'?'open':''}>
@@ -154,7 +191,7 @@
         <label class="prep-note-label">How did it feel? <input type="text" data-prep-note="${escapeHtml(key)}" placeholder="Optional: stiffness, pain, modifications" value="${escapeHtml(state.notes||'')}"></label>
       </details>`;
     };
-    return phase==='warm' ? `<div class="prep-wrap">${group('warm',warm,'1. Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}<div class="prep-strength-title">2. Strength workout · prescribed exercises below</div></div>` : `<div class="prep-wrap">${group('cool',cool,'3. Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
+    return phase==='warm' ? `<div class="prep-wrap"><div class="note">Suggested focus: ${escapeHtml(type)} · Based on the exercises in this day.</div>${group('warm',warm,'1. Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}<div class="prep-strength-title">2. Strength workout · prescribed exercises below</div></div>` : `<div class="prep-wrap">${group('cool',cool,'3. Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
   }
   function attachPrepListeners(){
     workoutDisplay.querySelectorAll('[data-prep-key]').forEach(el=>el.addEventListener('change',()=>{
