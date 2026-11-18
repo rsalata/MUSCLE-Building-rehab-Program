@@ -114,7 +114,7 @@
       <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:12px 0">
         <div><label for="wake-time">Wake-up time</label><select id="wake-time"><option value="05:30">5:30 AM (default)</option><option value="06:00">6:00 AM</option><option value="custom">Custom</option></select></div>
         <div id="wake-custom-wrap" style="display:none"><label for="wake-custom">Custom time</label><input type="time" id="wake-custom" value="05:30" style="background:#0f1320;color:var(--text);border:1px solid var(--ring);padding:8px;border-radius:8px"></div>
-        <button class="timer-btn" id="wake-alarm-help" type="button">Set iPhone alarm</button>
+        <button class="timer-btn" id="wake-alarm-help" type="button">Open Apple Shortcuts</button>
       </div>
       <p class="note" id="wake-alarm-note">The PWA cannot sound a reliable wake-up alarm when closed. Set an actual alarm in iPhone Clock.</p>
       <div id="morning-date" class="note"></div>
@@ -199,7 +199,8 @@
     wakeSelect.addEventListener('change',saveWake);
     customInput.addEventListener('change',saveWake);
     document.getElementById('wake-alarm-help').addEventListener('click',()=>{
-      document.getElementById('wake-alarm-note').textContent='To set your '+actualWake()+' wake-up alarm: open the iPhone Clock app → Alarms → + → choose '+actualWake()+' → set Repeat and Sound → Save. The PWA cannot create a Clock alarm automatically.';
+      document.getElementById('wake-alarm-note').textContent='Opening Shortcuts… Set a '+actualWake()+' alarm to repeat Monday–Friday. If Shortcuts does not open, launch it manually. The PWA cannot directly change Clock alarms.';
+      window.location.href='shortcuts://';
     });
     let log = {};
     try { log = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
