@@ -139,7 +139,7 @@
   function prepKey(sessionId,kind){return new Date().toLocaleDateString('en-CA')+'|'+sessionId+'|'+kind}
   function prepEntry(id){return prepLog[id]||{checked:[],notes:''}}
   function savePrep(){try{localStorage.setItem(PREP_KEY,JSON.stringify(prepLog))}catch(e){console.warn('Preparation save failed',e)}}
-  function renderPrep(sessionId,type){
+  function renderPrep(sessionId,type,phase){
     const warm=prepSteps(type);
     const cool=type==='upper'?['scap','breathe']:type==='lower'?['calf','open','breathe']:['hip','breathe'];
     const group=(kind,ids,title,description)=>{
@@ -154,9 +154,7 @@
         <label class="prep-note-label">How did it feel? <input type="text" data-prep-note="${escapeHtml(key)}" placeholder="Optional: stiffness, pain, modifications" value="${escapeHtml(state.notes||'')}"></label>
       </details>`;
     };
-    return `<div class="prep-wrap">${group('warm',warm,'1. Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}
-    <div class="prep-strength-title">2. Strength workout · prescribed exercises below</div>
-    ${group('cool',cool,'3. Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
+    return phase==='warm' ? `<div class="prep-wrap">${group('warm',warm,'1. Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}<div class="prep-strength-title">2. Strength workout · prescribed exercises below</div></div>` : `<div class="prep-wrap">${group('cool',cool,'3. Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
   }
   function attachPrepListeners(){
     workoutDisplay.querySelectorAll('[data-prep-key]').forEach(el=>el.addEventListener('change',()=>{
@@ -405,7 +403,7 @@
         </div>
       `;
 
-      html += renderPrep(sessionId,prepDayType(currentProgram,dayKey,day));
+      html += renderPrep(sessionId,prepDayType(currentProgram,dayKey,day),'warm');
 
       Object.keys(day).forEach(sectionKey => {
         if (sectionKey === 'name') return;
@@ -446,6 +444,7 @@
         });
         html += `</div></div>`;
       });
+      html += renderPrep(sessionId,prepDayType(currentProgram,dayKey,day),'cool');
     });
 
     workoutDisplay.innerHTML = html;
