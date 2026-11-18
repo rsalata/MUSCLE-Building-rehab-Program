@@ -265,6 +265,39 @@
       ankles:[['Ankle circles','10 each direction'],['Knee-to-wall ankle rocks','8 each'],['Standing calf raises','10 slow reps'],['Wall tibialis raises','10 reps'],['Supported step-ups, low step','6 each']],
       spine:[['Easy walking','2 min'],['Diaphragmatic breathing','1 min'],['Gentle pelvic tilts','8 reps'],['Cat-cow in comfortable range','6 reps'],['Bird-dog, short reach','5 each'],['Thoracic open books','5 each']]
     };
+    const guidance={
+      'Easy walk or march':['Warm the body gradually.','Move at a pace that allows comfortable conversation.'],
+      'Ankle circles':['Explore ankle movement.','Draw slow circles without forcing the joint.'],
+      'Supported hip circles':['Practice hip control.','Hold a stable surface and make small controlled circles.'],
+      'Gentle cat-cow':['Move the spine gently.','Alternate a small rounded and extended position without pushing into pain.'],
+      'Thoracic open books':['Practice upper-back rotation.','Lie on your side with knees comfortably bent and rotate the top arm and upper trunk.'],
+      'Shoulder blade circles':['Practice shoulder blade control.','Move the shoulder blades slowly without shrugging into discomfort.'],
+      'Comfortable calf stretch':['Ease calf tightness.','Keep heel supported and hold a gentle stretch without bouncing.'],
+      'Walk or easy bike':['Raise body temperature.','Keep resistance light and breathing comfortable.'],
+      'Hip hinge practice':['Rehearse hip movement.','Move hips backward with a comfortable neutral trunk.'],
+      'Supported lateral weight shifts':['Prepare side-to-side movement.','Hold support and shift weight slowly without forcing depth.'],
+      'Thoracic rotations':['Prepare upper-back movement.','Rotate gently through the upper back, not the lower back.'],
+      'Gentle neck and shoulder rolls':['Reduce unnecessary tension.','Use small, slow motions; avoid forceful neck circles.'],
+      'Movement-specific warm-up':['Prepare the next activity.','Practice its movements at low intensity before increasing effort.'],
+      'Shoulder blade squeezes':['Practice scapular control.','Bring shoulder blades gently together without arching the back.'],
+      'Gentle pendulum':['Gentle shoulder motion.','Support the other arm and let the relaxed arm sway in a small range.'],
+      'Wall slides in comfortable range':['Practice overhead movement control.','Slide arms up the wall only as far as comfortable.'],
+      'Chest opening with arms low':['Gentle chest mobility.','Keep arms below shoulder height and avoid pinching.'],
+      'Relaxed breathing':['Settle breathing.','Breathe slowly without straining or holding your breath.'],
+      'Adductor rock-backs':['Practice inner-thigh mobility.','With support, extend one leg to the side and rock back slightly.'],
+      '90/90 hip transitions (supported)':['Practice hip rotation.','Sit with knees bent and use hands for support while rotating slowly.'],
+      'Gentle hip flexor stretch':['Explore hip extension.','Use a supported split stance and a slight pelvic tuck.'],
+      'Supported squat hold if comfortable':['Explore squat position.','Hold a sturdy support and stay in a shallow comfortable range.'],
+      'Knee-to-wall ankle rocks':['Practice forward ankle motion.','Keep heel down while knee moves gently toward a wall.'],
+      'Standing calf raises':['Prepare calves.','Rise onto toes slowly while holding support.'],
+      'Wall tibialis raises':['Prepare front of lower leg.','With back against a wall, raise toes while heels stay down.'],
+      'Supported step-ups, low step':['Practice knee and hip control.','Use a low step and stable hand support.'],
+      'Easy walking':['Increase circulation gently.','Use an easy pace and stop if symptoms worsen.'],
+      'Diaphragmatic breathing':['Practice relaxed trunk breathing.','Breathe gently into the ribs and abdomen.'],
+      'Gentle pelvic tilts':['Practice low-back and pelvic control.','Tilt pelvis slightly while lying comfortably.'],
+      'Cat-cow in comfortable range':['Explore gentle spinal movement.','Move slowly on hands and knees, using a small range.'],
+      'Bird-dog, short reach':['Practice trunk stability.','Reach one arm or leg a short distance without twisting.']
+    };
     const select=document.getElementById('mobility-select');
     const steps=document.getElementById('mobility-steps');
     const note=document.getElementById('mobility-notes');
@@ -282,7 +315,14 @@
         const cb=document.createElement('input');cb.type='checkbox';cb.checked=state.checked.includes(i);cb.style.cssText='width:22px;height:22px;flex:none';
         cb.addEventListener('change',()=>{const [key2,record]=get();record.checked=cb.checked?[...new Set([...record.checked,i])]:record.checked.filter(n=>n!==i);store[key2]=record;save();date.textContent='Today: '+today+' · '+record.checked.length+' of '+routines[select.value].length+' checked'});
         const span=document.createElement('span');span.textContent=name+' · '+duration;
-        row.append(cb,span);steps.append(row);
+        const wrap=document.createElement('div');wrap.style.flex='1';wrap.append(span);
+        const detail=document.createElement('details');detail.style.cssText='margin-top:5px;color:var(--muted);font-size:13px';
+        const summary=document.createElement('summary');summary.textContent='Why & how';summary.style.cursor='pointer';detail.append(summary);
+        const info=guidance[name]||['Controlled movement.','Move slowly within a comfortable range.'];
+        const why=document.createElement('p');why.textContent='Why: '+info[0];why.style.margin='5px 0';
+        const how=document.createElement('p');how.textContent='How: '+info[1];how.style.margin='5px 0';
+        detail.append(why,how);wrap.append(detail);
+        row.append(cb,wrap);steps.append(row);
       });
       note.value=state.notes||'';
     };
