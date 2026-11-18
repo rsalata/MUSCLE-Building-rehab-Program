@@ -392,6 +392,7 @@
       userData,
       sessionData,
       morningData: loadData('morning_mobility_shoulder_v1'),
+      mobilityData: loadData('mobility_sessions_v1'),
       exportedAt: new Date().toISOString()
     };
 
@@ -442,6 +443,7 @@
         saveData(STORAGE_KEY, userData);
         saveData(SESSION_KEY, sessionData);
         if (parsed.morningData && typeof parsed.morningData === 'object' && !Array.isArray(parsed.morningData)) saveData('morning_mobility_shoulder_v1',parsed.morningData);
+        if (parsed.mobilityData && typeof parsed.mobilityData === 'object' && !Array.isArray(parsed.mobilityData)) saveData('mobility_sessions_v1',parsed.mobilityData);
         renderWorkout();
         alert('Workout data imported. Reload the app to refresh the morning routine.');
       } catch(error) { alert('Could not import this file: '+error.message); }
