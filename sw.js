@@ -1,14 +1,27 @@
-
-const CACHE = 'workout-demo-v7';
-const ASSETS = ['./','./index.html','./manifest.webmanifest','./sw.js','./icons/icon-192.png','./icons/icon-512.png'];
-self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))); self.skipWaiting(); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => k!==CACHE && caches.delete(k))))); self.clients.claim(); });
-self.addEventListener('fetch', e => {
-  const req = e.request; if (req.method!=='GET') return;
-  const accept = req.headers.get('accept') || '';
-  if (req.mode==='navigate' || accept.includes('text/html')) {
-    e.respondWith(fetch(req).then(res => { const clone=res.clone(); caches.open(CACHE).then(c=>c.put(req,clone)); return res; }).catch(()=>caches.match('./index.html')));
-  } else {
-    e.respondWith(caches.match(req).then(cached => cached || fetch(req)));
+const CACHE = 'workout-demo-v8';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './sw.js'];
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
+  self.skipWaiting();
+});
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.endsWith('/workout-data.js') || url.pathname.endsWith('/workout-app.js') || request.mode === 'navigate') {
+    event.respondWith(fetch(request).then(response => {
+      if (response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE).then(cache => cache.put(request, copy));
+      }
+      return response;
+    }).catch(() => caches.match(request).then(cached => cached || caches.match('./index.html'))));
+    return;
   }
+  event.respondWith(caches.match(request).then(cached => cached || fetch(request)));
 });
