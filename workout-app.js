@@ -118,6 +118,7 @@
     }
 
     const session = sessionData[sessionId];
+    if (session.running && session.startTime) session.elapsed = Math.floor((Date.now()-session.startTime)/1000);
     session.running = !session.running;
     if (timerIntervals[sessionId]) clearInterval(timerIntervals[sessionId]);
     session.date = new Date().toISOString();
@@ -132,6 +133,8 @@
       }, 1000);
     } else {
       clearInterval(timerIntervals[sessionId]);
+      delete timerIntervals[sessionId];
+      delete session.startTime;
     }
 
     updateTimerDisplay(sessionId);
@@ -140,6 +143,7 @@
 
   window.resetTimer = function(sessionId) {
     clearInterval(timerIntervals[sessionId]);
+    delete timerIntervals[sessionId];
 
     sessionData[sessionId] = {
       date: sessionData[sessionId]?.date || null,
@@ -179,7 +183,7 @@
     header.setAttribute('aria-expanded', String(isCollapsed));
 
     if (isCollapsed) {
-      content.style.maxHeight = content.scrollHeight + 'px';
+      content.style.maxHeight = 'none';
       content.classList.remove('collapsed');
       header.classList.remove('collapsed');
     } else {
@@ -236,7 +240,7 @@
 
     programTitle.textContent = info.title || programData.name || currentProgram;
     programDescription.textContent = info.description || '';
-    scheduleText.innerHTML = info.schedule || 'Follow the listed workout days in order.';
+    scheduleText.textContent = info.schedule || 'Follow the listed workout days in order.';
 
     const notes = Array.isArray(info.notes) ? info.notes : [];
 
@@ -295,8 +299,8 @@
     updateInfoSection();
 
     progressionNotesDiv.innerHTML = `
-      <h4>${workoutInfo.label || 'Workout'}</h4>
-      <p>${workoutInfo.description || ''}</p>
+      <h4>${escapeHtml(workoutInfo.label || 'Workout')}</h4>
+      <p>${escapeHtml(workoutInfo.description || '')}</p>
     `;
 
     let html = `<h2 style="margin:0 0 16px">${escapeHtml(programData.name || currentProgram)}</h2>`;
@@ -406,7 +410,7 @@
   };
 
   window.clearWorkoutData = function() {
-    const confirmText = prompt('Type DELETE to clear all saved workout data.');
+    const confirmText = prompt('Type DELETE to clear all saved workout data. This cannot be undone without a backup.');
 
     if (confirmText !== 'DELETE') return;
 
@@ -432,13 +436,14 @@
         if (!confirm('Import this backup? It will replace current workout logs on this device. Export your current data first if needed.')) return;
         userData = parsed.userData;
         sessionData = parsed.sessionData;
+        Object.values(sessionData).forEach(session=>{if(session && typeof session==='object'){session.running=false;delete session.startTime;}});
         Object.values(timerIntervals).forEach(clearInterval);
         timerIntervals = {};
         saveData(STORAGE_KEY, userData);
         saveData(SESSION_KEY, sessionData);
         if (parsed.morningData && typeof parsed.morningData === 'object' && !Array.isArray(parsed.morningData)) saveData('morning_mobility_shoulder_v1',parsed.morningData);
         renderWorkout();
-        alert('Workout data imported.');
+        alert('Workout data imported. Reload the app to refresh the morning routine.');
       } catch(error) { alert('Could not import this file: '+error.message); }
       finally { event.target.value = ''; }
     };
