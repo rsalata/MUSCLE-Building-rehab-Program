@@ -438,7 +438,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -491,7 +491,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -538,7 +538,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -591,7 +591,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -638,7 +638,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -691,7 +691,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -760,7 +760,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "10 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -813,7 +813,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "10 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -860,7 +860,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "10 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -913,7 +913,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "10 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -960,7 +960,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "10 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1013,7 +1013,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "10 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1082,7 +1082,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1135,7 +1135,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1182,7 +1182,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1235,7 +1235,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1282,7 +1282,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1335,7 +1335,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1404,7 +1404,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1439,7 +1439,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1480,7 +1480,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1515,7 +1515,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1550,7 +1550,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -1604,7 +1604,7 @@ const WORKOUT_PROGRAMS = {
         "name": "Twice weekly: Same workout twice per week",
         "exercises": [
           {
-            "name": "Forward & Backward Sled",
+            "name": "Forward & Backward specialized equipment",
             "sets": "1.0",
             "reps": "50 yards each way",
             "notes": ""
@@ -1703,7 +1703,7 @@ const WORKOUT_PROGRAMS = {
         "name": "Workout 1",
         "exercises": [
           {
-            "name": "Forward & Backward Sled",
+            "name": "Forward & Backward specialized equipment",
             "sets": "1.0",
             "reps": "100 yards each way",
             "notes": ""
@@ -1780,7 +1780,7 @@ const WORKOUT_PROGRAMS = {
         "name": "Workout 2",
         "exercises": [
           {
-            "name": "Forward & Backward Sled",
+            "name": "Forward & Backward specialized equipment",
             "sets": "1.0",
             "reps": "100 yards each way",
             "notes": ""
@@ -1947,10 +1947,10 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Stationary Bike (Sled Alternative)",
+            "name": "Stationary Bike (Gym Alternative)",
             "sets": "1",
             "reps": "5–10 minutes",
-            "notes": "Optional movement.. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
+            "notes": "Optional movement.. Easy-to-moderate cycling; no special equipment required. Reverse step-ups and leg extensions may be used instead if not already in this session."
           }
         ]
       },
@@ -2026,10 +2026,10 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Stationary Bike (Sled Alternative)",
+            "name": "Stationary Bike (Gym Alternative)",
             "sets": "1",
             "reps": "5–10 minutes",
-            "notes": "Optional movement.. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
+            "notes": "Optional movement.. Easy-to-moderate cycling; no special equipment required. Reverse step-ups and leg extensions may be used instead if not already in this session."
           }
         ]
       }
@@ -2110,10 +2110,10 @@ const WORKOUT_PROGRAMS = {
         "name": "Tue: Week A - Ankle",
         "exercises": [
           {
-            "name": "Stationary Bike (Sled Alternative)",
+            "name": "Stationary Bike (Gym Alternative)",
             "sets": "1",
             "reps": "5–10 minutes",
-            "notes": "Week A. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
+            "notes": "Week A. Easy-to-moderate cycling; no special equipment required. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Ankle Step",
@@ -2369,10 +2369,10 @@ const WORKOUT_PROGRAMS = {
         "name": "Tue: Week B - Ankle",
         "exercises": [
           {
-            "name": "Stationary Bike (Sled Alternative)",
+            "name": "Stationary Bike (Gym Alternative)",
             "sets": "1",
             "reps": "5–10 minutes",
-            "notes": "Week B. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
+            "notes": "Week B. Easy-to-moderate cycling; no special equipment required. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Ankle Step",
@@ -2635,10 +2635,10 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Stationary Bike (Sled Alternative)",
+            "name": "Stationary Bike (Gym Alternative)",
             "sets": "1",
             "reps": "5–10 minutes",
-            "notes": "Optional movement.. Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
+            "notes": "Optional movement.. Easy-to-moderate cycling; no special equipment required. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Neck Bridge",
@@ -2655,7 +2655,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -2801,7 +2801,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -2862,7 +2862,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -3024,7 +3024,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -3039,10 +3039,10 @@ const WORKOUT_PROGRAMS = {
             "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
-            "name": "Stationary Bike (Sled Alternative)",
+            "name": "Stationary Bike (Gym Alternative)",
             "sets": "1",
             "reps": "5–10 minutes",
-            "notes": "Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
+            "notes": "Easy-to-moderate cycling; no special equipment required. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Pigeon",
@@ -3071,7 +3071,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -3086,10 +3086,10 @@ const WORKOUT_PROGRAMS = {
             "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
-            "name": "Stationary Bike (Sled Alternative)",
+            "name": "Stationary Bike (Gym Alternative)",
             "sets": "1",
             "reps": "5–10 minutes",
-            "notes": "Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
+            "notes": "Easy-to-moderate cycling; no special equipment required. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Pigeon",
@@ -3118,7 +3118,7 @@ const WORKOUT_PROGRAMS = {
             "name": "Stationary Bike",
             "sets": "1",
             "reps": "5–8 minutes",
-            "notes": "Easy-to-moderate warmup. Replaces sled; no unpowered treadmill pushing."
+            "notes": "Easy-to-moderate warmup. No special equipment required."
           },
           {
             "name": "Reverse Step-Ups",
@@ -3133,10 +3133,10 @@ const WORKOUT_PROGRAMS = {
             "notes": "Light resistance and comfortable knee range; supplemental quad work."
           },
           {
-            "name": "Stationary Bike (Sled Alternative)",
+            "name": "Stationary Bike (Gym Alternative)",
             "sets": "1",
             "reps": "5–10 minutes",
-            "notes": "Easy-to-moderate cycling; no sled or unpowered treadmill. Reverse step-ups and leg extensions may be used instead if not already in this session."
+            "notes": "Easy-to-moderate cycling; no special equipment required. Reverse step-ups and leg extensions may be used instead if not already in this session."
           },
           {
             "name": "Pigeon",
@@ -3184,7 +3184,7 @@ const WORKOUT_PROGRAMS = {
         "name": "Mon",
         "exercises": [
           {
-            "name": "Adductor Sled",
+            "name": "Adductor specialized equipment",
             "sets": "1.0",
             "reps": "10 Mins",
             "notes": ""
@@ -3219,7 +3219,7 @@ const WORKOUT_PROGRAMS = {
         "name": "Wed",
         "exercises": [
           {
-            "name": "Adductor Sled",
+            "name": "Adductor specialized equipment",
             "sets": "1.0",
             "reps": "10 Mins",
             "notes": ""
@@ -3254,7 +3254,7 @@ const WORKOUT_PROGRAMS = {
         "name": "Fri",
         "exercises": [
           {
-            "name": "Adductor Sled",
+            "name": "Adductor specialized equipment",
             "sets": "1.0",
             "reps": "10 Mins",
             "notes": ""
@@ -3446,7 +3446,7 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Sled Push",
+            "name": "specialized equipment Push",
             "sets": "5.0",
             "reps": "Backwards/Forward for 5 Mins",
             "notes": "Optional movement."
@@ -3489,7 +3489,7 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Sled Push",
+            "name": "specialized equipment Push",
             "sets": "5.0",
             "reps": "Backwards/Forward for 5 Mins",
             "notes": "Optional movement."
@@ -3532,7 +3532,7 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Sled Push",
+            "name": "specialized equipment Push",
             "sets": "5.0",
             "reps": "Backwards/Forward for 5 Mins",
             "notes": "Optional movement."
@@ -3575,7 +3575,7 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Sled Push",
+            "name": "specialized equipment Push",
             "sets": "5.0",
             "reps": "Backwards/Forward for 5 Mins",
             "notes": "Optional movement."
@@ -3618,7 +3618,7 @@ const WORKOUT_PROGRAMS = {
         ],
         "optional": [
           {
-            "name": "Sled Push",
+            "name": "specialized equipment Push",
             "sets": "5.0",
             "reps": "Backwards/Forward for 5 Mins",
             "notes": "Optional movement."
