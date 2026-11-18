@@ -1,4 +1,4 @@
-const CACHE = 'workout-demo-v8';
+const CACHE = 'workout-demo-v9';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './sw.js'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
