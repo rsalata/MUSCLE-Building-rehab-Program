@@ -1,6 +1,6 @@
 {
-  "name": "Muscle Building & Rehab",
-  "short_name": "Muscle Rehab",
+  "name": "ATG Workout Plus",
+  "short_name": "ATG Workout",
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
