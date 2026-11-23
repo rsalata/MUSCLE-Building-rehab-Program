@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Muscle Building & Rehab — Workout Tracker</title>
+  <title>ATG Workout Plus — Workout Tracker</title>
   <style>
     :root{ --bg:#0e1116; --panel:#151926; --card:#1b2132; --text:#e6e9ee; --muted:#aab3c2; --ring:rgba(255,255,255,.08); --acc:#7dd3fc; --yellow:#ffd200; --ok:#22c55e; --bad:#ef4444; }
     *{box-sizing:border-box}
@@ -258,14 +258,16 @@
     const key='mobility_sessions_v1';
     const today=new Date().toLocaleDateString('en-CA');
     const routines={
-      daily:[['Easy walk or march','1 min'],['Ankle circles','30 sec each'],['Supported hip circles','45 sec'],['Gentle cat-cow','6 slow reps'],['Thoracic open books','5 each side'],['Shoulder blade circles','8 slow reps'],['Comfortable calf stretch','30 sec each']],
-      preclass:[['Walk or easy bike','2 min'],['Hip hinge practice','8 reps'],['Supported lateral weight shifts','8 each'],['Thoracic rotations','6 each'],['Gentle neck and shoulder rolls','30 sec'],['Movement-specific warm-up','2 min']],
+      daily:[['90/90 Breathing (feet on wall or bench)','4–5 slow breaths'],['Easy walk or march','1 min'],['Ankle circles','30 sec each'],['Supported hip circles','45 sec'],['Gentle cat-cow','6 slow reps'],['Thoracic open books','5 each side'],['Shoulder blade circles','8 slow reps'],['Comfortable calf stretch','30 sec each']],
+      preclass:[['90/90 Breathing (feet on wall or bench)','3–4 slow breaths'],['Walk or easy bike','2 min'],['Hip hinge practice','8 reps'],['Supported lateral weight shifts','8 each'],['Thoracic rotations','6 each'],['Gentle neck and shoulder rolls','30 sec'],['Movement-specific warm-up','2 min']],
       shoulder:[['Shoulder blade squeezes','10 reps'],['Gentle pendulum','45 sec'],['Wall slides in comfortable range','6–8 reps'],['Thoracic open books','6 each'],['Chest opening with arms low','30 sec'],['Relaxed breathing','1 min']],
       hips:[['Supported hip circles','8 each'],['Adductor rock-backs','8 each'],['90/90 hip transitions (supported)','6 slow reps'],['Gentle hip flexor stretch','30 sec each'],['Supported squat hold if comfortable','20–30 sec']],
       ankles:[['Ankle circles','10 each direction'],['Knee-to-wall ankle rocks','8 each'],['Standing calf raises','10 slow reps'],['Wall tibialis raises','10 reps'],['Supported step-ups, low step','6 each']],
-      spine:[['Easy walking','2 min'],['Diaphragmatic breathing','1 min'],['Gentle pelvic tilts','8 reps'],['Cat-cow in comfortable range','6 reps'],['Bird-dog, short reach','5 each'],['Thoracic open books','5 each']]
+      spine:[['90/90 Breathing (feet on wall or bench)','4–5 slow breaths'],['Easy walking','2 min'],['Diaphragmatic breathing','1 min'],['Gentle pelvic tilts','8 reps'],['Cat-cow in comfortable range','6 reps'],['Bird-dog, short reach','5 each'],['Thoracic open books','5 each']]
     };
     const guidance={
+      '90/90 Breathing (feet on wall or bench)':['Practice gentle rib and pelvic positioning with relaxed breathing.','Lie on your back with hips and knees bent about 90 degrees, feet supported on a wall or bench. Exhale gently for 5–6 seconds, let ribs settle, then inhale quietly through the nose. Avoid straining or breath-holding.'],
+
       'Easy walk or march':['Warm the body gradually.','Move at a pace that allows comfortable conversation.'],
       'Ankle circles':['Explore ankle movement.','Draw slow circles without forcing the joint.'],
       'Supported hip circles':['Practice hip control.','Hold a stable surface and make small controlled circles.'],
