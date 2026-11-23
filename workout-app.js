@@ -108,6 +108,7 @@
   // Movement preparation is supplementary; original program prescriptions are unchanged.
   const PREP_KEY = 'workout_movement_prep_v1';
   const prepLibrary = {
+    ninety: {name:'90/90 breathing (feet on wall or bench)',dose:'3–5 slow breaths',why:'Practice rib and pelvic positioning and gentle trunk control before movement.',how:'Lie on your back with hips and knees about 90 degrees and feet supported. Exhale slowly for 5–6 seconds, let ribs settle, then inhale quietly. Avoid straining or holding your breath.',next:'Keep breathing relaxed and controlled before adding more breaths.'},
     bike: {name:'Stationary bike or easy march',dose:'2–3 minutes',why:'Gradually increase circulation and body temperature.',how:'Start at a comfortable pace; finish feeling warmer, not fatigued.',next:'Increase pace slightly only when the current effort feels comfortable.'},
     ankle: {name:'Supported ankle rocks',dose:'8–10 per side',why:'Prepare ankle motion for stepping and squatting.',how:'With heel down, move knee gently forward over toes; use support.',next:'Move slightly farther without lifting the heel or forcing range.'},
     hip: {name:'Supported hip rotations',dose:'6–8 per side',why:'Practice controlled hip motion before lower-body training or grappling.',how:'Hold a wall or bench and make small smooth circles.',next:'Gradually enlarge the circle while keeping control.'},
@@ -162,15 +163,15 @@
     return 'mixed';
   }
   const PREP_PLANS={
-    upper:{warm:['bike','scap','thoracic','press'],cool:['scap','breathe']},
-    lower:{warm:['bike','ankle','hip','hinge'],cool:['calf','open','breathe']},
-    posterior:{warm:['bike','hinge','hip','brace'],cool:['breathe','open']},
-    ankle:{warm:['bike','ankle','calfraise','balance'],cool:['calf','breathe']},
-    hip:{warm:['bike','hip','adductor','hinge'],cool:['open','breathe']},
-    shoulder:{warm:['bike','scap','thoracic','wallslide'],cool:['scap','breathe']},
-    mobility:{warm:['bike','hip','thoracic','breathe'],cool:['breathe']},
-    bjj:{warm:['bike','hip','thoracic','bridge'],cool:['hip','breathe']},
-    mixed:{warm:['bike','ankle','scap','hinge'],cool:['calf','breathe']}
+    upper:{warm:['ninety','bike','scap','thoracic','press'],cool:['scap','breathe']},
+    lower:{warm:['ninety','bike','ankle','hip','hinge'],cool:['calf','open','breathe']},
+    posterior:{warm:['ninety','bike','hinge','hip','brace'],cool:['breathe','open']},
+    ankle:{warm:['ninety','bike','ankle','calfraise','balance'],cool:['calf','breathe']},
+    hip:{warm:['ninety','bike','hip','adductor','hinge'],cool:['open','breathe']},
+    shoulder:{warm:['ninety','bike','scap','thoracic','wallslide'],cool:['scap','breathe']},
+    mobility:{warm:['ninety','bike','hip','thoracic','breathe'],cool:['breathe']},
+    bjj:{warm:['ninety','bike','hip','thoracic','bridge'],cool:['hip','breathe']},
+    mixed:{warm:['ninety','bike','ankle','scap','hinge'],cool:['calf','breathe']}
   };
   function prepSteps(type,phase){return PREP_PLANS[type]?.[phase]||PREP_PLANS.mixed[phase]}
   function prepKey(sessionId,kind){return new Date().toLocaleDateString('en-CA')+'|'+sessionId+'|'+kind}
