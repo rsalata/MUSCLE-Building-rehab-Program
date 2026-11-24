@@ -158,6 +158,14 @@
     .progression-settings summary{cursor:pointer;color:var(--acc);font-weight:600}
     .progression-settings label{margin:10px 0 0}
     .progression-settings input{margin-top:7px;min-height:52px;font-size:16px;padding:12px}
+    .exercise-video{margin:8px 0 12px;color:var(--muted);font-size:14px}
+    .exercise-video summary{cursor:pointer;color:var(--acc);font-weight:600}
+    .video-tools{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-top:10px}
+    .video-tools label{flex:1;min-width:220px;margin:0}
+    .video-tools input{width:100%;min-height:52px;margin-top:7px;padding:12px;border-radius:8px;border:1px solid var(--ring);background:#0f1320;color:var(--text);font-size:16px}
+    .video-tools a,.video-link{color:var(--acc);display:inline-block;padding:12px 0}
+    .video-frame{position:relative;aspect-ratio:16/9;max-width:640px;margin:8px 0 4px;background:#0c1018;border:1px solid var(--ring);border-radius:10px;overflow:hidden}
+    .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
     .set-row input:focus-visible,.set-row textarea:focus-visible,.exercise-notes textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
     .optional-tools{margin-top:24px}
     @media(max-width:600px){
@@ -345,7 +353,7 @@
   })();
   </script>
   <script src="workout-data.js"></script>
-  <script src="workout-app.js?v=20"></script>
+  <script src="workout-app.js?v=21"></script>
   <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

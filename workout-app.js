@@ -101,6 +101,44 @@
     return '';
   }
 
+  function videoForExercise(id) {
+    const record = userData[id] || {};
+    const level = (record.progression || '').trim();
+    const saved = record.videos?.[level || '__default__'] || '';
+    try {
+      return /^https?:$/.test(new URL(saved).protocol) ? saved : '';
+    } catch (e) { return ''; }
+  }
+
+  function videoEmbedUrl(raw) {
+    try {
+      const url = new URL(raw);
+      if (url.protocol !== 'https:') return '';
+      const host = url.hostname.toLowerCase().replace(/^www\./, '').replace(/^m\./, '');
+      let id = '';
+      if (host === 'youtu.be') id = url.pathname.split('/')[1];
+      else if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+        if (url.pathname === '/watch') id = url.searchParams.get('v') || '';
+        else if (/^\/(shorts|embed)\//.test(url.pathname)) id = url.pathname.split('/')[2];
+      }
+      if (/^[a-zA-Z0-9_-]{11}$/.test(id)) return `https://www.youtube-nocookie.com/embed/${id}`;
+      if (host === 'vimeo.com' && /^\/\d+\/?$/.test(url.pathname)) return `https://player.vimeo.com/video/${url.pathname.match(/\d+/)[0]}`;
+    } catch (e) {}
+    return '';
+  }
+
+  function renderExerciseVideo(id, ex) {
+    const video = videoForExercise(id);
+    const embed = videoEmbedUrl(video);
+    const level = (userData[id]?.progression || '').trim();
+    const search = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${ex.name || ''} ${level} exercise demonstration`.trim())}`;
+    return `<details class="exercise-video"><summary>${video ? 'Watch demo video' : 'Add demo video'}${level ? ` · ${escapeHtml(level)}` : ''}</summary>
+      <div class="video-tools"><label>Video link for ${level ? `“${escapeHtml(level)}”` : 'this exercise'}<input type="url" aria-label="${escapeHtml(ex.name)} demo video URL" placeholder="Paste a YouTube, Vimeo, or other video link" value="${escapeHtml(video)}" data-id="${escapeHtml(id)}" data-field="video"></label>
+        <a href="${search}" target="_blank" rel="noopener noreferrer">Find a demo ↗</a></div>
+      ${video ? `<a class="video-link" href="${escapeHtml(video)}" target="_blank" rel="noopener noreferrer">Open video ↗</a>${embed ? `<div class="video-frame"><iframe src="${escapeHtml(embed)}" title="${escapeHtml(ex.name)} demonstration" loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>` : ''}` : ''}
+    </details>`;
+  }
+
   function getSessionId(program, workout, dayKey) {
     return `${program}_${workout}_${dayKey}`;
   }
@@ -377,6 +415,35 @@
   // INPUT LISTENERS
   // =========================
 
+  function attachVideoListener(input) {
+    input?.addEventListener('change', e => {
+      const {id} = e.target.dataset;
+      const url = e.target.value.trim();
+      let valid = !url;
+      try { valid = valid || /^https?:$/.test(new URL(url).protocol); } catch (error) {}
+      if (!valid) {
+        e.target.setCustomValidity('Enter a full http or https video link.');
+        e.target.reportValidity();
+        return;
+      }
+      e.target.setCustomValidity('');
+      userData[id] ||= {};
+      userData[id].videos ||= {};
+      const level = (userData[id].progression || '').trim() || '__default__';
+      if (url) userData[id].videos[level] = url;
+      else delete userData[id].videos[level];
+      saveData(STORAGE_KEY,userData);
+      const card = e.target.closest('.exercise-card');
+      const details = card.querySelector('.exercise-video');
+      const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][card.dataset.section][Number(card.dataset.exerciseIndex)];
+      const wasOpen = details.open;
+      details.outerHTML = renderExerciseVideo(id,ex);
+      const updated = card.querySelector('.exercise-video');
+      updated.open = wasOpen;
+      attachVideoListener(updated.querySelector('input'));
+    });
+  }
+
   function attachInputListeners() {
     workoutDisplay.querySelector('#day-select')?.addEventListener('change', e => {
       currentDay = e.target.value;
@@ -388,7 +455,8 @@
       selectedDate = e.target.value;
       renderWorkout();
     });
-    workoutDisplay.querySelectorAll('[data-id][data-field]').forEach(input => {
+    workoutDisplay.querySelectorAll('[data-field="video"]').forEach(attachVideoListener);
+    workoutDisplay.querySelectorAll('[data-id][data-field]:not([data-field="video"])').forEach(input => {
       input.addEventListener(input.type === 'checkbox' ? 'change' : 'input', e => {
         const {id,field,index} = e.target.dataset;
         if (field === 'progression') {
@@ -396,6 +464,10 @@
           userData[id].progression = e.target.value;
           saveData(STORAGE_KEY,userData);
           e.target.closest('details').querySelector('summary').textContent = 'Progression setting'+(e.target.value ? ' · '+e.target.value : '');
+          const card = e.target.closest('.exercise-card');
+          const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][card.dataset.section][Number(card.dataset.exerciseIndex)];
+          card.querySelector('.exercise-video').outerHTML = renderExerciseVideo(id,ex);
+          attachVideoListener(card.querySelector('.exercise-video input'));
           return;
         }
         const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][e.target.closest('.exercise-card').dataset.section][Number(e.target.closest('.exercise-card').dataset.exerciseIndex)];
@@ -577,6 +649,7 @@
                 <div><strong>${escapeHtml(ex.name || '')}</strong><div class="exercise-target">Target: ${prescribedSetCount(ex)} set${prescribedSetCount(ex)===1?'':'s'} · ${escapeHtml(ex.reps || 'as prescribed')}</div>${ex.notes ? `<div class="note">${escapeHtml(ex.notes)}</div>` : ''}</div>
               </div>
               <details class="progression-settings"><summary>Progression setting${userData[id]?.progression ? ` · ${escapeHtml(userData[id].progression)}` : ''}</summary><label>Current variation or level<input type="text" aria-label="${escapeHtml(ex.name)} current progression" placeholder="For example: assisted, bodyweight, level 2" value="${escapeHtml(userData[id]?.progression || '')}" data-id="${escapeHtml(id)}" data-field="progression"></label></details>
+              ${renderExerciseVideo(id,ex)}
               ${previous ? `<div class="previous-log">${escapeHtml(previous)}</div>` : ''}
               <div class="set-list">${saved.sets.map((set,i) => `<div class="set-row ${set.done?'checked':''}">
                 <label class="set-check">${i+1}<input type="checkbox" aria-label="${escapeHtml(ex.name)} set ${i+1} complete" data-id="${escapeHtml(id)}" data-index="${i}" data-field="done" ${set.done?'checked':''}></label>
