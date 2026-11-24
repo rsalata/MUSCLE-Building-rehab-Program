@@ -197,7 +197,6 @@
         <p class="note">${description}</p>
         ${ids.map((id,i)=>{const ex=prepLibrary[id];return `<div class="prep-move">
           <label class="prep-check"><input type="checkbox" data-prep-key="${escapeHtml(key)}" data-prep-index="${i}" ${state.checked.includes(i)?'checked':''}><span>${escapeHtml(ex.name)} <small class="muted">· ${escapeHtml(ex.dose)}</small></span></label>
-          <details class="prep-how"><summary>Why · How · Progress</summary><p><b>Why:</b> ${escapeHtml(ex.why)}</p><p><b>How:</b> ${escapeHtml(ex.how)}</p><p><b>When comfortable:</b> ${escapeHtml(ex.next)}</p></details>
         </div>`}).join('')}
         <label class="prep-note-label">How did it feel? <input type="text" data-prep-note="${escapeHtml(key)}" placeholder="Optional: stiffness, pain, modifications" value="${escapeHtml(state.notes||'')}"></label>
       </details>`;
@@ -380,6 +379,13 @@
     workoutDisplay.querySelectorAll('[data-id][data-field]').forEach(input => {
       input.addEventListener(input.type === 'checkbox' ? 'change' : 'input', e => {
         const {id,field,index} = e.target.dataset;
+        if (field === 'progression') {
+          userData[id] ||= {};
+          userData[id].progression = e.target.value;
+          saveData(STORAGE_KEY,userData);
+          e.target.closest('details').querySelector('summary').textContent = 'Progression setting'+(e.target.value ? ' · '+e.target.value : '');
+          return;
+        }
         const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][e.target.closest('.exercise-card').dataset.section][Number(e.target.closest('.exercise-card').dataset.exerciseIndex)];
         const entry = editExerciseEntry(id, ex);
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -499,6 +505,7 @@
               <div class="exercise-top">
                 <div><strong>${escapeHtml(ex.name || '')}</strong><div class="exercise-target">Target: ${prescribedSetCount(ex)} set${prescribedSetCount(ex)===1?'':'s'} · ${escapeHtml(ex.reps || 'as prescribed')}</div>${ex.notes ? `<div class="note">${escapeHtml(ex.notes)}</div>` : ''}</div>
               </div>
+              <details class="progression-settings"><summary>Progression setting${userData[id]?.progression ? ` · ${escapeHtml(userData[id].progression)}` : ''}</summary><label>Current variation or level<input type="text" aria-label="${escapeHtml(ex.name)} current progression" placeholder="For example: assisted, bodyweight, level 2" value="${escapeHtml(userData[id]?.progression || '')}" data-id="${escapeHtml(id)}" data-field="progression"></label></details>
               ${previous ? `<div class="previous-log">${escapeHtml(previous)}</div>` : ''}
               <div class="set-list">${saved.sets.map((set,i) => `<div class="set-row ${set.done?'checked':''}">
                 <label class="set-check">${i+1}<input type="checkbox" aria-label="${escapeHtml(ex.name)} set ${i+1} complete" data-id="${escapeHtml(id)}" data-index="${i}" data-field="done" ${set.done?'checked':''}></label>
