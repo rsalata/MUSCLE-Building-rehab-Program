@@ -5,6 +5,9 @@
 
   let currentProgram = WORKOUT_PROGRAMS.atg_program_1 ? 'atg_program_1' : Object.keys(WORKOUT_PROGRAMS)[0];
   let currentWorkout = Object.keys(WORKOUT_PROGRAMS[currentProgram].workouts)[0];
+  let currentDay = '';
+  const localDate = () => new Date().toLocaleDateString('en-CA');
+  let selectedDate = localDate();
 
   let timerIntervals = {};
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -61,29 +64,36 @@
     return `${program}_${workout}_${dayKey}_${section}_${index}`;
   }
 
-  function getUserExerciseData(id) {
-    return userData[id] || {
-      weight: '',
-      sets: '',
-      reps: '',
-      notes: '',
-      done: false
-    };
+  function prescribedSetCount(ex) {
+    const count = parseInt(ex.sets, 10);
+    return Number.isFinite(count) ? Math.min(Math.max(count, 1), 12) : 1;
   }
 
-  function updateUserExerciseData(id, field, value) {
-    if (!userData[id]) {
-      userData[id] = {
-        weight: '',
-        sets: '',
-        reps: '',
-        notes: '',
-        done: false
-      };
-    }
+  function getExerciseEntry(id, ex) {
+    const record = userData[id];
+    const saved = record?.entries?.[selectedDate];
+    if (saved) return saved;
+    return {sets: Array.from({length:prescribedSetCount(ex)}, () => ({reps:'',weight:'',notes:'',done:false})), notes:''};
+  }
 
-    userData[id][field] = value;
-    saveData(STORAGE_KEY, userData);
+  function editExerciseEntry(id, ex) {
+    userData[id] ||= {};
+    userData[id].entries ||= {};
+    if (!userData[id].entries[selectedDate]) userData[id].entries[selectedDate] = getExerciseEntry(id, ex);
+    return userData[id].entries[selectedDate];
+  }
+
+  function previousEntry(id) {
+    const record = userData[id];
+    if (!record) return '';
+    const dates = Object.keys(record.entries || {}).filter(date => date < selectedDate).sort().reverse();
+    if (dates.length) {
+      const entry = record.entries[dates[0]];
+      const logged = (entry.sets || []).filter(set => set.done || set.reps || set.weight);
+      return logged.length ? `Previous (${dates[0]}): ${logged.map(set => [set.reps || '—', set.weight ? set.weight+' lb' : 'bodyweight'].join(' @ ')).join(' · ')}` : '';
+    }
+    if (record.sets || record.reps || record.weight || record.notes) return `Earlier entry: ${record.sets || '—'} sets · ${record.reps || '—'} reps/time · ${record.weight || '—'} weight${record.notes ? ' · '+record.notes : ''}`;
+    return '';
   }
 
   function getSessionId(program, workout, dayKey) {
@@ -182,7 +192,7 @@
     const cool=prepSteps(type,'cool');
     const group=(kind,ids,title,description)=>{
       const key=prepKey(sessionId,kind),state=prepEntry(key);
-      return `<details class="prep-group" ${kind==='warm'?'open':''}>
+      return `<details class="prep-group">
         <summary><strong>${title}</strong> <span class="muted">· ${state.checked.length}/${ids.length} checked</span></summary>
         <p class="note">${description}</p>
         ${ids.map((id,i)=>{const ex=prepLibrary[id];return `<div class="prep-move">
@@ -192,7 +202,7 @@
         <label class="prep-note-label">How did it feel? <input type="text" data-prep-note="${escapeHtml(key)}" placeholder="Optional: stiffness, pain, modifications" value="${escapeHtml(state.notes||'')}"></label>
       </details>`;
     };
-    return phase==='warm' ? `<div class="prep-wrap"><div class="note">Suggested focus: ${escapeHtml(type)} · Based on the exercises in this day.</div>${group('warm',warm,'1. Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}<div class="prep-strength-title">2. Strength workout · prescribed exercises below</div></div>` : `<div class="prep-wrap">${group('cool',cool,'3. Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
+    return phase==='warm' ? `<div class="prep-wrap">${group('warm',warm,'Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}<div class="prep-strength-title">Exercises</div></div>` : `<div class="prep-wrap">${group('cool',cool,'Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
   }
   function attachPrepListeners(){
     workoutDisplay.querySelectorAll('[data-prep-key]').forEach(el=>el.addEventListener('change',()=>{
@@ -357,28 +367,41 @@
   // =========================
 
   function attachInputListeners() {
-    workoutDisplay.querySelectorAll('input').forEach(input => {
-      input.addEventListener('input', e => {
-        const id = e.target.dataset.id;
-        const field = e.target.dataset.field;
-
-        if (!id || !field) return;
-
+    workoutDisplay.querySelector('#day-select')?.addEventListener('change', e => {
+      currentDay = e.target.value;
+      localStorage.setItem('workout_programs_day_'+currentProgram+'_'+currentWorkout, currentDay);
+      renderWorkout();
+    });
+    workoutDisplay.querySelector('#log-date')?.addEventListener('change', e => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) return;
+      selectedDate = e.target.value;
+      renderWorkout();
+    });
+    workoutDisplay.querySelectorAll('[data-id][data-field]').forEach(input => {
+      input.addEventListener(input.type === 'checkbox' ? 'change' : 'input', e => {
+        const {id,field,index} = e.target.dataset;
+        const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][e.target.closest('.exercise-card').dataset.section][Number(e.target.closest('.exercise-card').dataset.exerciseIndex)];
+        const entry = editExerciseEntry(id, ex);
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-        updateUserExerciseData(id, field, value);
-        if (field === 'done') e.target.closest('.exercise-card')?.classList.toggle('completed', Boolean(value));
-      });
-
-      input.addEventListener('change', e => {
-        const id = e.target.dataset.id;
-        const field = e.target.dataset.field;
-
-        if (!id || !field) return;
-
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-        updateUserExerciseData(id, field, value);
+        if (index !== undefined) entry.sets[Number(index)][field] = value;
+        else entry[field] = value;
+        saveData(STORAGE_KEY, userData);
+        if (field === 'done') {
+          e.target.closest('.set-row')?.classList.toggle('checked', value);
+          e.target.closest('.exercise-card')?.classList.toggle('completed', entry.sets.length > 0 && entry.sets.every(set => set.done));
+        }
       });
     });
+    workoutDisplay.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => {
+      const {id,action,index} = button.dataset;
+      const card = button.closest('.exercise-card');
+      const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][card.dataset.section][Number(card.dataset.exerciseIndex)];
+      const entry = editExerciseEntry(id, ex);
+      if (action === 'add') entry.sets.push({reps:'',weight:'',notes:'',done:false});
+      if (action === 'remove' && entry.sets.length > 1) entry.sets.splice(Number(index),1);
+      saveData(STORAGE_KEY,userData);
+      renderWorkout();
+    }));
   }
 
   // =========================
@@ -406,7 +429,7 @@
       <p>${escapeHtml(workoutInfo.description || '')}</p>
     `;
 
-    let html = `<h2 style="margin:0 0 16px">${escapeHtml(programData.name || currentProgram)}</h2>`;
+    let html = `<h2 style="margin:0 0 6px">${escapeHtml(programData.name || currentProgram)}</h2><p class="muted" style="margin:0 0 16px">Choose a day and log each set as you complete it.</p>`;
 
     const dayKeys = Object.keys(programData.days || {});
 
@@ -415,7 +438,11 @@
       return;
     }
 
-    dayKeys.forEach(dayKey => {
+    const preferredDay = localStorage.getItem('workout_programs_day_'+currentProgram+'_'+currentWorkout);
+    if (!dayKeys.includes(currentDay)) currentDay = dayKeys.includes(preferredDay) ? preferredDay : dayKeys[0];
+    html += `<div class="workout-toolbar"><label for="day-select">Training day<select id="day-select">${dayKeys.map(key => `<option value="${escapeHtml(key)}" ${key===currentDay?'selected':''}>${escapeHtml(programData.days[key].name || key)}</option>`).join('')}</select></label><label for="log-date">Log date<input id="log-date" type="date" value="${selectedDate}"></label></div>`;
+
+    dayKeys.filter(key => key === currentDay).forEach(dayKey => {
       const day = programData.days[dayKey];
       const sessionId = getSessionId(currentProgram, currentWorkout, dayKey);
 
@@ -464,20 +491,24 @@
         `;
         exercises.forEach((ex, idx) => {
           const id = getExerciseId(currentProgram, currentWorkout, dayKey, sectionKey, idx);
-          const saved = getUserExerciseData(id);
-          const field = (key,placeholder) => `<input type="text" aria-label="${escapeHtml(ex.name)} ${key}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(saved[key] || '')}" data-id="${id}" data-field="${key}">`;
+          const saved = getExerciseEntry(id, ex);
+          const previous = previousEntry(id);
+          const field = (key,placeholder,value,index) => `<input type="text" aria-label="${escapeHtml(ex.name)} set ${index+1} ${key}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(value || '')}" data-id="${escapeHtml(id)}" data-index="${index}" data-field="${key}">`;
           html += `
-            <div class="exercise-card ${saved.done ? 'completed' : ''}">
+            <div class="exercise-card ${saved.sets.length && saved.sets.every(set => set.done) ? 'completed' : ''}" data-section="${escapeHtml(sectionKey)}" data-exercise-index="${idx}">
               <div class="exercise-top">
-                <input type="checkbox" aria-label="Completed: ${escapeHtml(ex.name)}" ${saved.done ? 'checked' : ''} data-id="${id}" data-field="done">
-                <div><strong>${escapeHtml(ex.name || '')}</strong>${ex.notes ? `<div class="note">${escapeHtml(ex.notes)}</div>` : ''}</div>
+                <div><strong>${escapeHtml(ex.name || '')}</strong><div class="exercise-target">Target: ${prescribedSetCount(ex)} set${prescribedSetCount(ex)===1?'':'s'} · ${escapeHtml(ex.reps || 'as prescribed')}</div>${ex.notes ? `<div class="note">${escapeHtml(ex.notes)}</div>` : ''}</div>
               </div>
-              <div class="exercise-fields">
-                <label>Weight ${field('weight','—')}</label>
-                <label>Sets ${field('sets',ex.sets || '—')}</label>
-                <label>Reps / time ${field('reps',ex.reps || '—')}</label>
-              </div>
-              <label class="exercise-notes">Session notes ${field('notes','Notes for this exercise')}</label>
+              ${previous ? `<div class="previous-log">${escapeHtml(previous)}</div>` : ''}
+              <div class="set-list">${saved.sets.map((set,i) => `<div class="set-row ${set.done?'checked':''}">
+                <label class="set-check">${i+1}<input type="checkbox" aria-label="${escapeHtml(ex.name)} set ${i+1} complete" data-id="${escapeHtml(id)}" data-index="${i}" data-field="done" ${set.done?'checked':''}></label>
+                <label>Reps / time${field('reps',ex.reps || '—',set.reps,i)}</label>
+                <label>Weight (lb)${field('weight','—',set.weight,i)}</label>
+                <label class="set-note">Set note${field('notes','Optional',set.notes,i)}</label>
+                <button type="button" class="timer-btn remove-set" aria-label="Remove set ${i+1} from ${escapeHtml(ex.name)}" title="Remove set" data-id="${escapeHtml(id)}" data-action="remove" data-index="${i}" ${saved.sets.length===1?'disabled':''}>×</button>
+              </div>`).join('')}</div>
+              <button type="button" class="timer-btn" data-id="${escapeHtml(id)}" data-action="add">+ Add set</button>
+              <label class="exercise-notes">Exercise notes<input type="text" aria-label="${escapeHtml(ex.name)} exercise notes" placeholder="Form, symptoms, or adjustments" value="${escapeHtml(saved.notes || '')}" data-id="${escapeHtml(id)}" data-field="notes"></label>
             </div>`;
         });
         html += `</div></div>`;
@@ -567,6 +598,7 @@
 
   programSelect.addEventListener('change', e => {
     currentProgram = e.target.value;
+    currentDay = '';
     localStorage.setItem(PREF_KEY,currentProgram);
     updateWorkoutSelector(currentProgram);
     renderWorkout();
@@ -574,6 +606,7 @@
 
   workoutSelect.addEventListener('change', e => {
     currentWorkout = e.target.value;
+    currentDay = '';
     localStorage.setItem('workout_programs_workout_'+currentProgram,currentWorkout);
     renderWorkout();
   });
