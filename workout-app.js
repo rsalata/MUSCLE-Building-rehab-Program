@@ -24,6 +24,7 @@
   const programBadge = document.getElementById('program-badge');
   const workoutLabel = document.getElementById('workout-label');
   const workoutDisplay = document.getElementById('workout-display');
+  const historyDisplay = document.getElementById('history-display');
 
   // =========================
   // LOCAL STORAGE
@@ -49,7 +50,15 @@
 
   userData = loadData(STORAGE_KEY);
   sessionData = loadData(SESSION_KEY);
-  Object.values(sessionData).forEach(session => { if (session && session.running) { session.running = false; delete session.startTime; } });
+  // Old timers were keyed only by training day. Keep their elapsed time as unfinished sessions.
+  Object.entries(sessionData).forEach(([key, session]) => {
+    if (key.includes('|') || !session?.date) return;
+    const date = new Date(session.date).toLocaleDateString('en-CA');
+    if (date === 'Invalid Date') return;
+    const datedKey = `${key}|${date}`;
+    sessionData[datedKey] ||= {...session, date, status:'in_progress', startedAt:session.date, running:false};
+    delete sessionData[key];
+  });
   saveData(SESSION_KEY,sessionData);
 
   // =========================
@@ -93,6 +102,25 @@
 
   function getSessionId(program, workout, dayKey) {
     return `${program}_${workout}_${dayKey}`;
+  }
+
+  function getSessionRecordKey(program, workout, dayKey, date) {
+    return `${getSessionId(program, workout, dayKey)}|${date}`;
+  }
+
+  function setProgress(program, workout, dayKey, date) {
+    const day = WORKOUT_PROGRAMS[program]?.days?.[dayKey] || {};
+    let done = 0, total = 0;
+    Object.entries(day).forEach(([section, exercises]) => {
+      if (!Array.isArray(exercises)) return;
+      exercises.forEach((ex, index) => {
+        const id = getExerciseId(program, workout, dayKey, section, index);
+        const rows = userData[id]?.entries?.[date]?.sets;
+        total += rows?.length || prescribedSetCount(ex);
+        done += rows?.filter(row => row.done).length || 0;
+      });
+    });
+    return {done,total};
   }
 
   function formatTime(seconds) {
@@ -215,65 +243,72 @@
   // TIMERS
   // =========================
 
-  window.toggleTimer = function(sessionId) {
-    if (!sessionData[sessionId]) {
-      sessionData[sessionId] = {
-        date: new Date().toISOString(),
-        elapsed: 0,
-        running: false
+  function elapsedSeconds(session) {
+    return session?.running && session.startTime
+      ? Math.max(0,Math.floor((Date.now()-session.startTime)/1000))
+      : session?.elapsed || 0;
+  }
+
+  function stopTicking(recordKey) {
+    clearInterval(timerIntervals[recordKey]);
+    delete timerIntervals[recordKey];
+  }
+
+  function tickWhileRunning(recordKey) {
+    stopTicking(recordKey);
+    if (sessionData[recordKey]?.running) timerIntervals[recordKey] = setInterval(() => updateTimerDisplay(recordKey),1000);
+  }
+
+  window.toggleTimer = function(recordKey) {
+    let session = sessionData[recordKey];
+    if (session?.status === 'completed') return;
+    if (!session) {
+      session = sessionData[recordKey] = {
+        program:currentProgram, workout:currentWorkout, dayKey:currentDay, date:selectedDate,
+        status:'in_progress', startedAt:new Date().toISOString(), elapsed:0, running:false
       };
     }
-
-    const session = sessionData[sessionId];
-    if (session.running && session.startTime) session.elapsed = Math.floor((Date.now()-session.startTime)/1000);
-    session.running = !session.running;
-    if (timerIntervals[sessionId]) clearInterval(timerIntervals[sessionId]);
-    session.date = new Date().toISOString();
-
     if (session.running) {
-      session.startTime = Date.now() - (session.elapsed * 1000);
-
-      timerIntervals[sessionId] = setInterval(() => {
-        session.elapsed = Math.floor((Date.now() - session.startTime) / 1000);
-        updateTimerDisplay(sessionId);
-        saveData(SESSION_KEY, sessionData);
-      }, 1000);
-    } else {
-      clearInterval(timerIntervals[sessionId]);
-      delete timerIntervals[sessionId];
+      session.elapsed = elapsedSeconds(session);
+      session.running = false;
       delete session.startTime;
+    } else {
+      // Only one workout timer runs at a time; other unfinished workouts remain available.
+      Object.entries(sessionData).forEach(([key,other]) => {
+        if (key !== recordKey && other?.running) {
+          other.elapsed = elapsedSeconds(other);
+          other.running = false;
+          delete other.startTime;
+          stopTicking(key);
+        }
+      });
+      session.running = true;
+      session.startTime = Date.now() - session.elapsed*1000;
     }
-
-    updateTimerDisplay(sessionId);
-    saveData(SESSION_KEY, sessionData);
+    tickWhileRunning(recordKey);
+    saveData(SESSION_KEY,sessionData);
+    renderWorkout();
   };
 
-  window.resetTimer = function(sessionId) {
-    clearInterval(timerIntervals[sessionId]);
-    delete timerIntervals[sessionId];
-
-    sessionData[sessionId] = {
-      date: sessionData[sessionId]?.date || null,
-      elapsed: 0,
-      running: false
-    };
-
-    updateTimerDisplay(sessionId);
-    saveData(SESSION_KEY, sessionData);
+  window.finishWorkout = function(recordKey) {
+    const session = sessionData[recordKey];
+    if (!session || session.status !== 'in_progress') return;
+    const {done} = setProgress(session.program,session.workout,session.dayKey,session.date);
+    if (!done) return;
+    session.elapsed = elapsedSeconds(session);
+    session.running = false;
+    delete session.startTime;
+    session.status = 'completed';
+    session.finishedAt = new Date().toISOString();
+    stopTicking(recordKey);
+    saveData(SESSION_KEY,sessionData);
+    renderWorkout();
   };
 
-  function updateTimerDisplay(sessionId) {
-    const timerEl = document.getElementById(`timer-${sessionId}`);
-    const btnEl = document.getElementById(`timer-btn-${sessionId}`);
-
-    if (!timerEl || !sessionData[sessionId]) return;
-
-    timerEl.textContent = formatTime(sessionData[sessionId].elapsed);
-
-    if (btnEl) {
-      btnEl.textContent = sessionData[sessionId].running ? 'Pause' : 'Start';
-      btnEl.classList.toggle('active', sessionData[sessionId].running);
-    }
+  function updateTimerDisplay(recordKey) {
+    const timerEl = document.getElementById(`timer-${recordKey}`);
+    const session = sessionData[recordKey];
+    if (timerEl && session) timerEl.textContent = formatTime(elapsedSeconds(session));
   }
 
   // =========================
@@ -371,6 +406,11 @@
         if (field === 'done') {
           e.target.closest('.set-row')?.classList.toggle('checked', value);
           e.target.closest('.exercise-card')?.classList.toggle('completed', entry.sets.length > 0 && entry.sets.every(set => set.done));
+          const progress = setProgress(currentProgram,currentWorkout,currentDay,selectedDate);
+          const countEl = workoutDisplay.querySelector('#set-progress');
+          if (countEl) countEl.textContent = `${progress.done} of ${progress.total} sets complete`;
+          const finishBtn = workoutDisplay.querySelector('#finish-workout');
+          if (finishBtn) finishBtn.disabled = progress.done === 0;
         } else if (field === 'notes' && index === undefined) {
           e.target.closest('details').querySelector('summary').textContent = 'Exercise notes'+(value ? ' · saved' : '');
         }
@@ -385,6 +425,35 @@
       if (action === 'remove' && entry.sets.length > 1) entry.sets.splice(Number(index),1);
       saveData(STORAGE_KEY,userData);
       renderWorkout();
+    }));
+  }
+
+  // =========================
+  // COMPLETED SESSION HISTORY
+  // =========================
+
+  function renderHistory() {
+    const completed = Object.values(sessionData)
+      .filter(session => session?.status === 'completed' && WORKOUT_PROGRAMS[session.program]?.days?.[session.dayKey])
+      .sort((a,b) => (b.finishedAt || '').localeCompare(a.finishedAt || ''));
+    historyDisplay.innerHTML = `<details><summary>Workout history · ${completed.length} finished</summary>
+      <div class="history-list">${completed.length ? completed.map(session => {
+        const name = WORKOUT_PROGRAMS[session.program].name;
+        const day = WORKOUT_PROGRAMS[session.program].days[session.dayKey].name || session.dayKey;
+        const count = setProgress(session.program,session.workout,session.dayKey,session.date);
+        return `<button type="button" class="history-row" data-history-program="${escapeHtml(session.program)}" data-history-workout="${escapeHtml(session.workout)}" data-history-day="${escapeHtml(session.dayKey)}" data-history-date="${escapeHtml(session.date)}"><span><strong>${escapeHtml(day)}</strong><small>${escapeHtml(name)} · ${escapeHtml(session.date)}</small></span><span>${count.done} sets · ${formatTime(elapsedSeconds(session))}</span></button>`;
+      }).join('') : '<p class="muted">Finish a workout to see it here.</p>'}</div></details>`;
+    historyDisplay.querySelectorAll('[data-history-date]').forEach(button => button.addEventListener('click', () => {
+      currentProgram = button.dataset.historyProgram;
+      programSelect.value = currentProgram;
+      localStorage.setItem(PREF_KEY,currentProgram);
+      updateWorkoutSelector(currentProgram);
+      currentWorkout = button.dataset.historyWorkout;
+      workoutSelect.value = currentWorkout;
+      currentDay = button.dataset.historyDay;
+      selectedDate = button.dataset.historyDate;
+      renderWorkout();
+      workoutDisplay.scrollIntoView({behavior:'smooth',block:'start'});
     }));
   }
 
@@ -418,27 +487,26 @@
     dayKeys.filter(key => key === currentDay).forEach(dayKey => {
       const day = programData.days[dayKey];
       const sessionId = getSessionId(currentProgram, currentWorkout, dayKey);
-
-      const session = sessionData[sessionId] || {
-        date: null,
-        elapsed: 0,
-        running: false
-      };
-
-      const sessionDate = session.date ? new Date(session.date).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Not started';
+      const recordKey = getSessionRecordKey(currentProgram,currentWorkout,dayKey,selectedDate);
+      const session = sessionData[recordKey];
+      if (session && !session.program) {
+        Object.assign(session,{program:currentProgram,workout:currentWorkout,dayKey,date:selectedDate,status:'in_progress'});
+        saveData(SESSION_KEY,sessionData);
+      }
+      const progress = setProgress(currentProgram,currentWorkout,dayKey,selectedDate);
+      const status = session?.status === 'completed' ? 'Finished' : session ? 'In progress' : 'Not started';
 
       html += `
         <div class="day-title">
           <span>${escapeHtml(day.name || dayKey)}</span>
           <div class="session-info">
-            <span>Last: ${sessionDate}</span>
-            <span class="timer" id="timer-${sessionId}">${formatTime(session.elapsed)}</span>
-            <button class="timer-btn ${session.running ? 'active' : ''}" id="timer-btn-${sessionId}" onclick="toggleTimer('${sessionId}')">
-              ${session.running ? 'Pause' : 'Start'}
-            </button>
-            <button class="timer-btn" onclick="resetTimer('${sessionId}')">Reset</button>
+            <span class="session-status">${status}</span>
+            <span class="timer" id="timer-${recordKey}">${formatTime(elapsedSeconds(session))}</span>
+            ${session?.status === 'completed' ? '' : `<button class="timer-btn ${session?.running ? 'active' : ''}" onclick="toggleTimer('${recordKey}')">${session?.running ? 'Pause timer' : session ? 'Resume timer' : 'Start workout'}</button>`}
+            ${session?.status === 'in_progress' ? `<button class="timer-btn finish-btn" id="finish-workout" onclick="finishWorkout('${recordKey}')" ${progress.done ? '' : 'disabled'}>Finish workout</button>` : ''}
           </div>
         </div>
+        <div class="workout-progress" id="set-progress" aria-live="polite">${progress.done} of ${progress.total} sets complete</div>
       `;
 
       html += renderPrep(sessionId,prepDayType(currentProgram,dayKey,day),'warm');
@@ -495,6 +563,9 @@
     workoutDisplay.innerHTML = html;
     attachInputListeners();
     attachPrepListeners();
+    renderHistory();
+    const activeKey = getSessionRecordKey(currentProgram,currentWorkout,currentDay,selectedDate);
+    if (sessionData[activeKey]?.running && !timerIntervals[activeKey]) tickWhileRunning(activeKey);
   }
 
   // =========================
