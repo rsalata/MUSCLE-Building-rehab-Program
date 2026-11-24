@@ -14,6 +14,7 @@
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   let userData = {};
   let sessionData = {};
+  let progressExerciseId = '';
 
   // =========================
   // DOM ELEMENTS
@@ -432,17 +433,50 @@
   // COMPLETED SESSION HISTORY
   // =========================
 
-  function renderHistory() {
-    const completed = Object.values(sessionData)
+  function exerciseList(program, workout, dayKey) {
+    const day = WORKOUT_PROGRAMS[program]?.days?.[dayKey] || {};
+    return Object.entries(day).flatMap(([section, exercises]) => Array.isArray(exercises)
+      ? exercises.map((ex,index) => ({id:getExerciseId(program,workout,dayKey,section,index),name:ex.name || 'Exercise'})) : []);
+  }
+
+  function completedSessions() {
+    return Object.values(sessionData)
       .filter(session => session?.status === 'completed' && WORKOUT_PROGRAMS[session.program]?.days?.[session.dayKey])
-      .sort((a,b) => (b.finishedAt || '').localeCompare(a.finishedAt || ''));
-    historyDisplay.innerHTML = `<details><summary>Workout history · ${completed.length} finished</summary>
+      .sort((a,b) => (b.finishedAt || b.date || '').localeCompare(a.finishedAt || a.date || ''));
+  }
+
+  function sessionExerciseRows(session, exerciseId) {
+    return (userData[exerciseId]?.entries?.[session.date]?.sets || []).map((set,index) => ({...set,number:index+1})).filter(set => set.done);
+  }
+
+  function renderProgress(completed) {
+    const exercises = exerciseList(currentProgram,currentWorkout,currentDay);
+    if (!exercises.some(ex => ex.id === progressExerciseId)) progressExerciseId = exercises[0]?.id || '';
+    const sessions = completed.filter(session => session.program === currentProgram && session.workout === currentWorkout && session.dayKey === currentDay);
+    const logged = sessions.filter(session => sessionExerciseRows(session,progressExerciseId).length).slice(0,8);
+    return `<section class="progress-panel" aria-label="Exercise progress">
+      <h3>Exercise progress</h3><p class="muted">Completed sets from finished workouts for this training day. Latest 8 sessions.</p>
+      <label for="progress-exercise">Exercise<select id="progress-exercise">${exercises.map(ex => `<option value="${escapeHtml(ex.id)}" ${ex.id===progressExerciseId?'selected':''}>${escapeHtml(ex.name)}</option>`).join('')}</select></label>
+      ${logged.length ? `<div class="progress-history">${logged.map(session => `<div class="progress-entry"><strong>${escapeHtml(session.date)}</strong><div>${sessionExerciseRows(session,progressExerciseId).map(set => `<div>Set ${set.number}: ${escapeHtml(set.reps || 'reps not entered')}${set.weight ? ` · ${escapeHtml(set.weight)} lb` : ''}${set.notes ? ` · ${escapeHtml(set.notes)}` : ''}</div>`).join('')}</div></div>`).join('')}</div>` : '<p class="muted">No finished sessions with completed sets for this exercise yet.</p>'}
+    </section>`;
+  }
+
+  function renderHistory() {
+    const completed = completedSessions();
+    historyDisplay.innerHTML = `${renderProgress(completed)}<details><summary>Workout history · ${completed.length} finished</summary>
       <div class="history-list">${completed.length ? completed.map(session => {
         const name = WORKOUT_PROGRAMS[session.program].name;
         const day = WORKOUT_PROGRAMS[session.program].days[session.dayKey].name || session.dayKey;
         const count = setProgress(session.program,session.workout,session.dayKey,session.date);
-        return `<button type="button" class="history-row" data-history-program="${escapeHtml(session.program)}" data-history-workout="${escapeHtml(session.workout)}" data-history-day="${escapeHtml(session.dayKey)}" data-history-date="${escapeHtml(session.date)}"><span><strong>${escapeHtml(day)}</strong><small>${escapeHtml(name)} · ${escapeHtml(session.date)}</small></span><span>${count.done} sets · ${formatTime(elapsedSeconds(session))}</span></button>`;
+        const results = exerciseList(session.program,session.workout,session.dayKey).map(ex => ({...ex,rows:sessionExerciseRows(session,ex.id),notes:userData[ex.id]?.entries?.[session.date]?.notes || ''})).filter(ex => ex.rows.length || ex.notes);
+        return `<details class="history-session"><summary class="history-row"><span><strong>${escapeHtml(day)}</strong><small>${escapeHtml(name)} · ${escapeHtml(session.date)}</small></span><span>${count.done}/${count.total} sets · ${formatTime(elapsedSeconds(session))}</span></summary>
+          <div class="history-results">${results.map(ex => `<div class="history-exercise"><strong>${escapeHtml(ex.name)}</strong>${ex.rows.map(set => `<div>Set ${set.number}: ${escapeHtml(set.reps || 'reps not entered')}${set.weight ? ` · ${escapeHtml(set.weight)} lb` : ''}${set.notes ? ` · ${escapeHtml(set.notes)}` : ''}</div>`).join('')}${ex.notes ? `<div>Exercise note: ${escapeHtml(ex.notes)}</div>` : ''}</div>`).join('') || '<p class="muted">No exercise results saved.</p>'}
+            <button type="button" class="timer-btn" data-history-program="${escapeHtml(session.program)}" data-history-workout="${escapeHtml(session.workout)}" data-history-day="${escapeHtml(session.dayKey)}" data-history-date="${escapeHtml(session.date)}">Open workout log</button></div></details>`;
       }).join('') : '<p class="muted">Finish a workout to see it here.</p>'}</div></details>`;
+    historyDisplay.querySelector('#progress-exercise')?.addEventListener('change', e => {
+      progressExerciseId = e.target.value;
+      renderHistory();
+    });
     historyDisplay.querySelectorAll('[data-history-date]').forEach(button => button.addEventListener('click', () => {
       currentProgram = button.dataset.historyProgram;
       programSelect.value = currentProgram;
@@ -506,7 +540,7 @@
             ${session?.status === 'in_progress' ? `<button class="timer-btn finish-btn" id="finish-workout" onclick="finishWorkout('${recordKey}')" ${progress.done ? '' : 'disabled'}>Finish workout</button>` : ''}
           </div>
         </div>
-        <div class="workout-progress" id="set-progress" aria-live="polite">${progress.done} of ${progress.total} sets complete</div>
+        <div class="workout-progress"><span id="set-progress" aria-live="polite">${progress.done} of ${progress.total} sets complete</span><a href="#history-display">Progress & history ↓</a></div>
       `;
 
       html += renderPrep(sessionId,prepDayType(currentProgram,dayKey,day),'warm');

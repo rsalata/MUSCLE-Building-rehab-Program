@@ -112,13 +112,31 @@
     .session-status{font-weight:700;color:var(--muted)}
     .finish-btn{border-color:var(--ok);color:var(--ok)}
     .finish-btn:disabled{opacity:.45;cursor:not-allowed}
-    .workout-progress{padding:10px 14px;margin:0 0 14px;background:#102432;border:1px solid rgba(125,211,252,.22);border-radius:10px;color:var(--acc);font-weight:700;font-size:14px}
+    .workout-progress{padding:10px 14px;margin:0 0 14px;background:#102432;border:1px solid rgba(125,211,252,.22);border-radius:10px;color:var(--acc);font-weight:700;font-size:14px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+    .workout-progress a{color:var(--acc);font-weight:500}
+    #history-display{scroll-margin-top:90px}
     #history-display>details>summary{cursor:pointer;color:var(--acc);font-size:17px;font-weight:700}
     .history-list{display:grid;gap:8px;margin-top:14px}
     .history-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:12px 14px;text-align:left;border-radius:10px;border:1px solid var(--ring);background:var(--panel);color:var(--text);font:inherit;cursor:pointer}
     .history-row:hover{border-color:var(--acc)}
     .history-row small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
     .history-row>span:last-child{white-space:nowrap;color:var(--acc);font-size:14px}
+    .progress-panel{background:var(--panel);border:1px solid var(--ring);border-radius:12px;padding:16px;margin-bottom:20px}
+    .progress-panel h3{margin:0 0 4px;font-size:18px;color:var(--acc)}
+    .progress-panel p{font-size:13px;margin:0 0 14px}
+    .progress-panel label{max-width:420px}
+    .progress-panel select{display:block;width:100%;min-height:44px;margin-top:6px}
+    .progress-history{display:grid;gap:8px;margin-top:14px}
+    .progress-entry{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:10px 12px;background:#111624;border-radius:8px;font-size:14px}
+    .progress-entry strong{color:var(--acc)}
+    .history-session{border:1px solid var(--ring);border-radius:10px;background:var(--panel);overflow:hidden}
+    .history-session[open]{border-color:rgba(125,211,252,.4)}
+    .history-session .history-row{border:0;border-radius:0;list-style:none;cursor:pointer}
+    .history-session .history-row::-webkit-details-marker{display:none}
+    .history-results{padding:0 14px 14px;font-size:14px}
+    .history-exercise{border-top:1px solid var(--ring);padding:10px 0}
+    .history-exercise strong{display:block;color:var(--text);margin-bottom:3px}
+    .history-results button{margin-top:10px}
     .exercise-list{grid-template-columns:1fr!important}
     .exercise-card{padding:18px}
     .exercise-top{justify-content:space-between;align-items:flex-start}
@@ -155,6 +173,8 @@
       .set-row{grid-template-columns:36px repeat(2,minmax(0,1fr)) 44px;gap:10px;padding:12px}
       .set-row .set-note{grid-column:2 / 5}
       .set-row input:not([type=checkbox]),.set-row textarea{min-width:0}
+      .progress-entry{grid-template-columns:1fr;gap:4px}
+      .history-row{align-items:flex-start;flex-direction:column}
     }
   </style>
   <meta name="theme-color" content="#0e1116">
@@ -325,7 +345,7 @@
   })();
   </script>
   <script src="workout-data.js"></script>
-  <script src="workout-app.js?v=19"></script>
+  <script src="workout-app.js?v=20"></script>
   <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
