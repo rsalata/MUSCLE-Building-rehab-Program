@@ -1,7 +1,8 @@
 ﻿(function(){
-  const STORAGE_KEY = 'workout_programs_data_v1';
-  const SESSION_KEY = 'workout_programs_session_v1';
-  const PREF_KEY = 'workout_programs_active_v1';
+  // ATGPlus uses separate storage from the older PHLUL app on the same origin.
+  const STORAGE_KEY = 'atgplus_exercise_logs_v2';
+  const SESSION_KEY = 'atgplus_session_timers_v2';
+  const PREF_KEY = 'atgplus_active_program_v2';
 
   let currentProgram = WORKOUT_PROGRAMS.atg_program_1 ? 'atg_program_1' : Object.keys(WORKOUT_PROGRAMS)[0];
   let currentWorkout = Object.keys(WORKOUT_PROGRAMS[currentProgram].workouts)[0];
@@ -23,11 +24,6 @@
   const programBadge = document.getElementById('program-badge');
   const workoutLabel = document.getElementById('workout-label');
   const workoutDisplay = document.getElementById('workout-display');
-  const progressionNotesDiv = document.getElementById('progression-notes');
-  const programTitle = document.getElementById('program-title');
-  const programDescription = document.getElementById('program-description');
-  const scheduleText = document.getElementById('schedule-text');
-  const generalNotes = document.getElementById('general-notes');
 
   // =========================
   // LOCAL STORAGE
@@ -92,7 +88,6 @@
       const logged = (entry.sets || []).filter(set => set.done || set.reps || set.weight);
       return logged.length ? `Previous (${dates[0]}): ${logged.map(set => [set.reps || '—', set.weight ? set.weight+' lb' : 'bodyweight'].join(' @ ')).join(' · ')}` : '';
     }
-    if (record.sets || record.reps || record.weight || record.notes) return `Earlier entry: ${record.sets || '—'} sets · ${record.reps || '—'} reps/time · ${record.weight || '—'} weight${record.notes ? ' · '+record.notes : ''}`;
     return '';
   }
 
@@ -201,7 +196,7 @@
         <label class="prep-note-label">How did it feel? <input type="text" data-prep-note="${escapeHtml(key)}" placeholder="Optional: stiffness, pain, modifications" value="${escapeHtml(state.notes||'')}"></label>
       </details>`;
     };
-    return phase==='warm' ? `<div class="prep-wrap">${group('warm',warm,'Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}<div class="prep-strength-title">Exercises</div></div>` : `<div class="prep-wrap">${group('cool',cool,'Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
+    return phase==='warm' ? `<div class="prep-wrap">${group('warm',warm,'Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}</div>` : `<div class="prep-wrap">${group('cool',cool,'Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
   }
   function attachPrepListeners(){
     workoutDisplay.querySelectorAll('[data-prep-key]').forEach(el=>el.addEventListener('change',()=>{
@@ -336,29 +331,10 @@
       workoutSelect.appendChild(option);
     });
 
-    const preferredWorkout = localStorage.getItem('workout_programs_workout_'+program);
+    const preferredWorkout = localStorage.getItem('atgplus_workout_'+program);
     currentWorkout = preferredWorkout && programData.workouts[preferredWorkout] ? preferredWorkout : Object.keys(programData.workouts)[0];
     workoutSelect.value = currentWorkout;
     workoutLabel.textContent = 'Workout';
-  }
-
-  // =========================
-  // INFO PANEL
-  // =========================
-
-  function updateInfoSection() {
-    const programData = WORKOUT_PROGRAMS[currentProgram];
-    const info = programData.info || {};
-
-    programTitle.textContent = info.title || programData.name || currentProgram;
-    programDescription.textContent = info.description || '';
-    scheduleText.textContent = info.schedule || 'Follow the listed workout days in order.';
-
-    const notes = Array.isArray(info.notes) ? info.notes : [];
-
-    generalNotes.innerHTML = notes.length
-      ? notes.map(note => `<li>${escapeHtml(note)}</li>`).join('')
-      : '<li>Use pain-free range of motion.</li><li>Track your workout notes each session.</li>';
   }
 
   // =========================
@@ -368,7 +344,7 @@
   function attachInputListeners() {
     workoutDisplay.querySelector('#day-select')?.addEventListener('change', e => {
       currentDay = e.target.value;
-      localStorage.setItem('workout_programs_day_'+currentProgram+'_'+currentWorkout, currentDay);
+      localStorage.setItem('atgplus_day_'+currentProgram+'_'+currentWorkout, currentDay);
       renderWorkout();
     });
     workoutDisplay.querySelector('#log-date')?.addEventListener('change', e => {
@@ -395,6 +371,8 @@
         if (field === 'done') {
           e.target.closest('.set-row')?.classList.toggle('checked', value);
           e.target.closest('.exercise-card')?.classList.toggle('completed', entry.sets.length > 0 && entry.sets.every(set => set.done));
+        } else if (field === 'notes' && index === undefined) {
+          e.target.closest('details').querySelector('summary').textContent = 'Exercise notes'+(value ? ' · saved' : '');
         }
       });
     });
@@ -422,18 +400,7 @@
       return;
     }
 
-    const workoutInfo = programData.workouts[currentWorkout] || {
-      label: 'Main',
-      description: ''
-    };
-
     programBadge.textContent = programData.name || currentProgram;
-    updateInfoSection();
-
-    progressionNotesDiv.innerHTML = `
-      <h4>${escapeHtml(workoutInfo.label || 'Workout')}</h4>
-      <p>${escapeHtml(workoutInfo.description || '')}</p>
-    `;
 
     let html = `<h2 style="margin:0 0 6px">${escapeHtml(programData.name || currentProgram)}</h2><p class="muted" style="margin:0 0 16px">Choose a day and log each set as you complete it.</p>`;
 
@@ -444,7 +411,7 @@
       return;
     }
 
-    const preferredDay = localStorage.getItem('workout_programs_day_'+currentProgram+'_'+currentWorkout);
+    const preferredDay = localStorage.getItem('atgplus_day_'+currentProgram+'_'+currentWorkout);
     if (!dayKeys.includes(currentDay)) currentDay = dayKeys.includes(preferredDay) ? preferredDay : dayKeys[0];
     html += `<div class="workout-toolbar"><label for="day-select">Training day<select id="day-select">${dayKeys.map(key => `<option value="${escapeHtml(key)}" ${key===currentDay?'selected':''}>${escapeHtml(programData.days[key].name || key)}</option>`).join('')}</select></label><label for="log-date">Log date<input id="log-date" type="date" value="${selectedDate}"></label></div>`;
 
@@ -499,7 +466,9 @@
           const id = getExerciseId(currentProgram, currentWorkout, dayKey, sectionKey, idx);
           const saved = getExerciseEntry(id, ex);
           const previous = previousEntry(id);
-          const field = (key,placeholder,value,index) => `<input type="text" aria-label="${escapeHtml(ex.name)} set ${index+1} ${key}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(value || '')}" data-id="${escapeHtml(id)}" data-index="${index}" data-field="${key}">`;
+          const field = (key,placeholder,value,index) => key === 'notes'
+            ? `<textarea rows="2" aria-label="${escapeHtml(ex.name)} set ${index+1} note" placeholder="${escapeHtml(placeholder)}" data-id="${escapeHtml(id)}" data-index="${index}" data-field="${key}">${escapeHtml(value || '')}</textarea>`
+            : `<input type="text" inputmode="${key === 'weight' ? 'decimal' : 'text'}" aria-label="${escapeHtml(ex.name)} set ${index+1} ${key}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(value || '')}" data-id="${escapeHtml(id)}" data-index="${index}" data-field="${key}">`;
           html += `
             <div class="exercise-card ${saved.sets.length && saved.sets.every(set => set.done) ? 'completed' : ''}" data-section="${escapeHtml(sectionKey)}" data-exercise-index="${idx}">
               <div class="exercise-top">
@@ -515,7 +484,7 @@
                 <button type="button" class="timer-btn remove-set" aria-label="Remove set ${i+1} from ${escapeHtml(ex.name)}" title="Remove set" data-id="${escapeHtml(id)}" data-action="remove" data-index="${i}" ${saved.sets.length===1?'disabled':''}>×</button>
               </div>`).join('')}</div>
               <button type="button" class="timer-btn" data-id="${escapeHtml(id)}" data-action="add">+ Add set</button>
-              <label class="exercise-notes">Exercise notes<input type="text" aria-label="${escapeHtml(ex.name)} exercise notes" placeholder="Form, symptoms, or adjustments" value="${escapeHtml(saved.notes || '')}" data-id="${escapeHtml(id)}" data-field="notes"></label>
+              <details class="exercise-notes" ${saved.notes ? 'open' : ''}><summary>Exercise notes${saved.notes ? ' · saved' : ''}</summary><textarea rows="2" aria-label="${escapeHtml(ex.name)} exercise notes" placeholder="Form, symptoms, or adjustments" data-id="${escapeHtml(id)}" data-field="notes">${escapeHtml(saved.notes || '')}</textarea></details>
             </div>`;
         });
         html += `</div></div>`;
@@ -534,6 +503,8 @@
 
   window.exportWorkoutData = function() {
     const payload = {
+      app: 'ATGPlus',
+      version: 2,
       userData,
       sessionData,
       morningData: loadData('morning_mobility_shoulder_v1'),
@@ -579,7 +550,7 @@
     reader.onload = () => {
       try {
         const parsed = JSON.parse(reader.result);
-        if (!parsed || typeof parsed.userData !== 'object' || Array.isArray(parsed.userData) || !parsed.userData || typeof parsed.sessionData !== 'object' || Array.isArray(parsed.sessionData) || !parsed.sessionData) throw Error('Invalid backup format');
+        if (!parsed || parsed.app !== 'ATGPlus' || parsed.version !== 2 || typeof parsed.userData !== 'object' || Array.isArray(parsed.userData) || !parsed.userData || typeof parsed.sessionData !== 'object' || Array.isArray(parsed.sessionData) || !parsed.sessionData) throw Error('Choose an ATGPlus version 2 backup');
         if (!confirm('Import this backup? It will replace current workout logs on this device. Export your current data first if needed.')) return;
         userData = parsed.userData;
         sessionData = parsed.sessionData;
@@ -614,7 +585,7 @@
   workoutSelect.addEventListener('change', e => {
     currentWorkout = e.target.value;
     currentDay = '';
-    localStorage.setItem('workout_programs_workout_'+currentProgram,currentWorkout);
+    localStorage.setItem('atgplus_workout_'+currentProgram,currentWorkout);
     renderWorkout();
   });
 
