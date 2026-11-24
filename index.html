@@ -122,6 +122,13 @@
     .session-picker.single .session-choice{flex:1 1 auto;min-height:58px}
     .session-choice strong{display:block;font-size:14px;line-height:1.25}
     .session-choice small{display:block;color:var(--muted);font-size:12px;margin-top:5px}
+    .next-queue{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px;border:1px solid rgba(125,211,252,.3);border-radius:12px;background:#102432;margin:16px 0}
+    .next-queue>div:first-child{display:grid;gap:2px;min-width:200px;flex:1}
+    .next-queue small{color:var(--acc);font-size:11px;font-weight:800;letter-spacing:.07em}
+    .next-queue strong{font-size:16px}
+    .next-queue span{color:var(--muted);font-size:12px}
+    .next-queue>div:last-child{display:flex;gap:8px}
+    .next-queue button:disabled{opacity:.4;cursor:default}
     .day-title{display:block;margin:0 0 14px}
     .day-title .session-info{margin-top:8px}
     .session-status{font-weight:700;color:var(--muted)}
@@ -176,8 +183,18 @@
     .previous-log{font-size:13px;color:var(--muted);margin:8px 0}
     .progression-settings{margin:8px 0 12px;color:var(--muted);font-size:14px}
     .progression-settings summary{cursor:pointer;color:var(--acc);font-weight:600}
+    .progression-settings summary small{display:block;color:var(--muted);font-size:12px;font-weight:500;margin:3px 0 0 16px}
     .progression-settings label{margin:10px 0 0}
     .progression-settings input{margin-top:7px;min-height:52px;font-size:16px;padding:12px}
+    .level-list{display:grid;gap:10px;margin-top:12px}
+    .level-row{display:grid;grid-template-columns:minmax(130px,1.2fr) 90px minmax(130px,1.2fr);gap:8px;padding:10px;border:1px solid var(--ring);background:#111624;border-radius:9px}
+    .level-row.current{border-color:var(--acc)}
+    .level-row>strong{grid-column:1/-1;color:var(--acc);font-size:13px}
+    .level-row label{min-width:0;margin:0;font-size:12px}
+    .level-row .level-video{grid-column:1/-1}
+    .level-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .copy-last{margin:0 0 4px;color:var(--acc)}
+    .history-exercise small,.progress-entry small{display:block;color:var(--muted)}
     .exercise-video{margin:8px 0 12px;color:var(--muted);font-size:14px}
     .exercise-video summary{cursor:pointer;color:var(--acc);font-weight:600}
     .video-tools{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-top:10px}
@@ -203,6 +220,8 @@
       .set-row input:not([type=checkbox]),.set-row textarea{min-width:0}
       .progress-entry{grid-template-columns:1fr;gap:4px}
       .history-row{align-items:flex-start;flex-direction:column}
+      .level-row{grid-template-columns:1fr 1fr}
+      .level-row label:first-of-type,.level-row .level-video{grid-column:1/-1}
     }
   </style>
   <meta name="theme-color" content="#0e1116">
@@ -375,7 +394,7 @@
   })();
   </script>
   <script src="workout-data.js"></script>
-  <script src="workout-app.js?v=23"></script>
+  <script src="workout-app.js?v=24"></script>
   <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

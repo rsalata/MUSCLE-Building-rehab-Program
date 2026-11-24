@@ -3,6 +3,7 @@
   const STORAGE_KEY = 'atgplus_exercise_logs_v2';
   const SESSION_KEY = 'atgplus_session_timers_v2';
   const PREF_KEY = 'atgplus_active_program_v2';
+  const QUEUE_KEY = 'atgplus_next_workout_v1';
 
   let currentProgram = WORKOUT_PROGRAMS.atg_program_1 ? 'atg_program_1' : Object.keys(WORKOUT_PROGRAMS)[0];
   let currentWorkout = Object.keys(WORKOUT_PROGRAMS[currentProgram].workouts)[0];
@@ -14,6 +15,7 @@
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   let userData = {};
   let sessionData = {};
+  let queueData = {};
   let progressExerciseId = '';
 
   // =========================
@@ -70,6 +72,7 @@
 
   userData = loadData(STORAGE_KEY);
   sessionData = loadData(SESSION_KEY);
+  queueData = loadData(QUEUE_KEY);
   // Old timers were keyed only by training day. Keep their elapsed time as unfinished sessions.
   Object.entries(sessionData).forEach(([key, session]) => {
     if (key.includes('|') || !session?.date) return;
@@ -104,26 +107,98 @@
   function editExerciseEntry(id, ex) {
     userData[id] ||= {};
     userData[id].entries ||= {};
-    if (!userData[id].entries[selectedDate]) userData[id].entries[selectedDate] = getExerciseEntry(id, ex);
+    if (!userData[id].entries[selectedDate]) userData[id].entries[selectedDate] = {...getExerciseEntry(id, ex),level:currentLevelName(id)};
     return userData[id].entries[selectedDate];
   }
 
+  function previousEntryData(id) {
+    const entries = userData[id]?.entries || {};
+    const date = Object.keys(entries).filter(day => day < selectedDate && entries[day]?.sets?.some(set => set.done || set.reps || set.weight)).sort().pop();
+    return date ? {date,entry:entries[date]} : null;
+  }
+
   function previousEntry(id) {
+    const previous = previousEntryData(id);
+    if (!previous) return '';
+    const logged = previous.entry.sets.filter(set => set.done || set.reps || set.weight);
+    return `Previous (${previous.date}): ${logged.map(set => [set.reps || '—', set.weight ? set.weight+' lb' : 'bodyweight'].join(' @ ')).join(' · ')}`;
+  }
+
+  function progressionLevels(id) {
+    const record = userData[id] || {};
+    return Array.isArray(record.progressionLevels) && record.progressionLevels.length
+      ? record.progressionLevels : [{name:record.progression || 'Level 1',goalSets:'',goalValue:''}];
+  }
+
+  function currentLevelName(id) {
+    const record = userData[id] || {};
+    return record.progression || progressionLevels(id)[0].name;
+  }
+
+  function ensureProgressionLevels(id) {
+    userData[id] ||= {};
     const record = userData[id];
-    if (!record) return '';
-    const dates = Object.keys(record.entries || {}).filter(date => date < selectedDate).sort().reverse();
-    if (dates.length) {
-      const entry = record.entries[dates[0]];
-      const logged = (entry.sets || []).filter(set => set.done || set.reps || set.weight);
-      return logged.length ? `Previous (${dates[0]}): ${logged.map(set => [set.reps || '—', set.weight ? set.weight+' lb' : 'bodyweight'].join(' @ ')).join(' · ')}` : '';
+    if (!Array.isArray(record.progressionLevels) || !record.progressionLevels.length) {
+      record.progressionLevels = progressionLevels(id).map(level => ({...level}));
+      if (!record.progression && record.videos?.__default__) {
+        record.videos[record.progressionLevels[0].name] ||= record.videos.__default__;
+      }
     }
-    return '';
+    record.progression ||= record.progressionLevels[0].name;
+    return record.progressionLevels;
+  }
+
+  function progressionStatus(id, ex) {
+    const levels = progressionLevels(id);
+    const current = currentLevelName(id);
+    const level = levels.find(step => step.name === current) || levels[0];
+    const targetValue = Number(level.goalValue);
+    if (!level.goalValue || !Number.isFinite(targetValue) || targetValue <= 0) return 'Set a reps/time goal to track progress.';
+    const targetSets = Math.max(1,Number(level.goalSets) || prescribedSetCount(ex));
+    const entries = userData[id]?.entries || {};
+    const today = entries[selectedDate];
+    let date = selectedDate, entry = today;
+    if (entry?.level !== current || !entry?.sets?.some(set => set.done)) {
+      date = Object.keys(entries).filter(day => day < selectedDate && entries[day]?.level === current && sessionData[getSessionRecordKey(currentProgram,currentWorkout,currentDay,day)]?.status === 'completed').sort().pop();
+      entry = date ? entries[date] : null;
+    }
+    const count = (entry?.sets || []).filter(set => set.done && Number((String(set.reps || '').match(/\d+(?:\.\d+)?/) || [])[0]) >= targetValue).length;
+    return `${date && entry ? (date===selectedDate?'This session':`Last finished ${date}`) : 'Current level'}: ${Math.min(count,targetSets)}/${targetSets} sets at ${targetValue}+ reps/time${count >= targetSets ? ' · goal met; move up when ready' : ''}`;
+  }
+
+  function renderProgression(id, ex) {
+    const levels = progressionLevels(id);
+    const current = currentLevelName(id);
+    const index = Math.max(0,levels.findIndex(step => step.name === current));
+    const step = levels[index];
+    return `<details class="progression-settings"><summary>Progression · ${escapeHtml(current)}${levels[index+1] ? ` → ${escapeHtml(levels[index+1].name)}` : ''}<small class="level-progress">${escapeHtml(progressionStatus(id,ex))}</small></summary>
+      <div class="level-list">${levels.map((level,i) => `<div class="level-row ${i===index?'current':''}"><strong>${i===index?'Current':i<index?'Previous':'Next'} · ${i+1}</strong>
+        <label>Level name<input type="text" aria-label="${escapeHtml(ex.name)} level ${i+1} name" value="${escapeHtml(level.name)}" data-id="${escapeHtml(id)}" data-level-index="${i}" data-level-field="name"></label>
+        <label>Goal sets<input type="number" min="1" max="20" aria-label="${escapeHtml(ex.name)} level ${i+1} goal sets" placeholder="${prescribedSetCount(ex)}" value="${escapeHtml(level.goalSets || '')}" data-id="${escapeHtml(id)}" data-level-index="${i}" data-level-field="goalSets"></label>
+        <label>Minimum reps/time number per set<input type="number" min="0" step="any" aria-label="${escapeHtml(ex.name)} level ${i+1} goal reps or time" placeholder="Optional" value="${escapeHtml(level.goalValue || '')}" data-id="${escapeHtml(id)}" data-level-index="${i}" data-level-field="goalValue"></label>
+        <label class="level-video">Video link<input type="url" aria-label="${escapeHtml(ex.name)} level ${i+1} video URL" placeholder="Optional" value="${escapeHtml(userData[id]?.videos?.[level.name] || (i===0 ? userData[id]?.videos?.__default__ || '' : ''))}" data-id="${escapeHtml(id)}" data-level-index="${i}" data-level-field="video"></label>
+      </div>`).join('')}</div><div class="level-actions"><button type="button" class="timer-btn" data-id="${escapeHtml(id)}" data-level-action="add">+ Add next level</button>${index>0 ? `<button type="button" class="timer-btn" data-id="${escapeHtml(id)}" data-level-action="back">Move back to ${escapeHtml(levels[index-1].name)}</button>` : ''}${levels[index+1] ? `<button type="button" class="timer-btn" data-id="${escapeHtml(id)}" data-level-action="advance">Move up to ${escapeHtml(levels[index+1].name)}</button>` : ''}</div>
+      <p class="note">Goals show progress from checked sets. Moving up is always your choice.</p>
+    </details>`;
+  }
+
+  function refreshProgressionCard(card,id,ex) {
+    const details = card.querySelector('.progression-settings');
+    const wasOpen = details.open;
+    details.outerHTML = renderProgression(id,ex);
+    card.querySelector('.progression-settings').open = wasOpen;
+    const video = card.querySelector('.exercise-video');
+    const videoOpen = video.open;
+    video.outerHTML = renderExerciseVideo(id,ex);
+    const updatedVideo = card.querySelector('.exercise-video');
+    updatedVideo.open = videoOpen;
+    attachVideoListener(updatedVideo.querySelector('input'));
   }
 
   function videoForExercise(id) {
     const record = userData[id] || {};
-    const level = (record.progression || '').trim();
-    const saved = record.videos?.[level || '__default__'] || '';
+    const level = currentLevelName(id);
+    const saved = record.videos?.[level] || (!record.progression ? record.videos?.__default__ : '') || '';
     try {
       return /^https?:$/.test(new URL(saved).protocol) ? saved : '';
     } catch (e) { return ''; }
@@ -149,7 +224,7 @@
   function renderExerciseVideo(id, ex) {
     const video = videoForExercise(id);
     const embed = videoEmbedUrl(video);
-    const level = (userData[id]?.progression || '').trim();
+    const level = currentLevelName(id);
     const search = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${ex.name || ''} ${level} exercise demonstration`.trim())}`;
     return `<details class="exercise-video"><summary>${video ? 'Watch demo video' : 'Add demo video'}${level ? ` · ${escapeHtml(level)}` : ''}</summary>
       <div class="video-tools"><label>Video link for ${level ? `“${escapeHtml(level)}”` : 'this exercise'}<input type="url" aria-label="${escapeHtml(ex.name)} demo video URL" placeholder="Paste a YouTube, Vimeo, or other video link" value="${escapeHtml(video)}" data-id="${escapeHtml(id)}" data-field="video"></label>
@@ -164,6 +239,20 @@
 
   function getSessionRecordKey(program, workout, dayKey, date) {
     return `${getSessionId(program, workout, dayKey)}|${date}`;
+  }
+
+  function nextDayAfter(program,dayKey) {
+    const keys = Object.keys(WORKOUT_PROGRAMS[program]?.days || {});
+    return keys[(keys.indexOf(dayKey)+1) % keys.length] || keys[0];
+  }
+
+  function queuedDay(program,workout) {
+    const key = `${program}|${workout}`;
+    const days = WORKOUT_PROGRAMS[program]?.days || {};
+    if (days[queueData[key]]) return queueData[key];
+    const latest = Object.values(sessionData).filter(session => session?.status === 'completed' && session.program === program && session.workout === workout)
+      .sort((a,b) => (b.finishedAt || '').localeCompare(a.finishedAt || ''))[0];
+    return latest ? nextDayAfter(program,latest.dayKey) : Object.keys(days)[0];
   }
 
   function setProgress(program, workout, dayKey, date) {
@@ -360,6 +449,8 @@
     session.finishedAt = new Date().toISOString();
     stopTicking(recordKey);
     saveData(SESSION_KEY,sessionData);
+    queueData[`${session.program}|${session.workout}`] = nextDayAfter(session.program,session.dayKey);
+    saveData(QUEUE_KEY,queueData);
     renderWorkout();
   };
 
@@ -448,7 +539,7 @@
       e.target.setCustomValidity('');
       userData[id] ||= {};
       userData[id].videos ||= {};
-      const level = (userData[id].progression || '').trim() || '__default__';
+      const level = currentLevelName(id);
       if (url) userData[id].videos[level] = url;
       else delete userData[id].videos[level];
       saveData(STORAGE_KEY,userData);
@@ -464,6 +555,21 @@
   }
 
   function attachInputListeners() {
+    workoutDisplay.querySelector('#open-next')?.addEventListener('click', () => {
+      currentDay = queuedDay(currentProgram,currentWorkout);
+      localStorage.setItem('atgplus_day_'+currentProgram+'_'+currentWorkout,currentDay);
+      selectedDate = localDate();
+      renderWorkout();
+      workoutDisplay.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    workoutDisplay.querySelector('#skip-next')?.addEventListener('click', () => {
+      queueData[`${currentProgram}|${currentWorkout}`] = nextDayAfter(currentProgram,queuedDay(currentProgram,currentWorkout));
+      saveData(QUEUE_KEY,queueData);
+      currentDay = queuedDay(currentProgram,currentWorkout);
+      localStorage.setItem('atgplus_day_'+currentProgram+'_'+currentWorkout,currentDay);
+      renderWorkout();
+      workoutDisplay.scrollIntoView({behavior:'smooth',block:'start'});
+    });
     workoutDisplay.querySelectorAll('[data-choose-day]').forEach(button => button.addEventListener('click', () => {
       currentDay = button.dataset.chooseDay;
       localStorage.setItem('atgplus_day_'+currentProgram+'_'+currentWorkout, currentDay);
@@ -487,23 +593,73 @@
       renderWorkout();
     });
     workoutDisplay.querySelector('#show-history')?.addEventListener('click', () => setView('history'));
+    workoutDisplay.onchange = e => {
+      const input = e.target.closest('[data-level-field]');
+      if (!input) return;
+      const {id,levelField} = input.dataset;
+      const index = Number(input.dataset.levelIndex);
+      const levels = ensureProgressionLevels(id);
+      const step = levels[index];
+      if (!step) return;
+      const value = input.value.trim();
+      if (levelField === 'name') {
+        if (!value || levels.some((other,i) => i !== index && other.name.toLowerCase() === value.toLowerCase())) {
+          input.setCustomValidity('Use a unique level name.');input.reportValidity();return;
+        }
+        input.setCustomValidity('');
+        const old = step.name;
+        step.name = value;
+        if (userData[id].progression === old) userData[id].progression = value;
+        if (userData[id].videos?.[old]) {
+          userData[id].videos[value] = userData[id].videos[old];
+          delete userData[id].videos[old];
+        }
+      } else if (levelField === 'video') {
+        let valid = !value;
+        try { valid ||= /^https?:$/.test(new URL(value).protocol); } catch(error) {}
+        if (!valid) {input.setCustomValidity('Enter a full http or https video link.');input.reportValidity();return;}
+        input.setCustomValidity('');
+        userData[id].videos ||= {};
+        if (value) userData[id].videos[step.name] = value;
+        else delete userData[id].videos[step.name];
+      } else if (levelField === 'goalSets') {
+        step.goalSets = value ? String(Math.max(1,Math.min(20,Number(value) || 1))) : '';
+      } else if (levelField === 'goalValue') {
+        step.goalValue = value && Number(value) > 0 ? String(Number(value)) : '';
+      }
+      saveData(STORAGE_KEY,userData);
+      const card = input.closest('.exercise-card');
+      const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][card.dataset.section][Number(card.dataset.exerciseIndex)];
+      refreshProgressionCard(card,id,ex);
+    };
+    workoutDisplay.onclick = e => {
+      const button = e.target.closest('[data-level-action]');
+      if (!button) return;
+      const {id,levelAction} = button.dataset;
+      const levels = ensureProgressionLevels(id);
+      if (levelAction === 'add') {
+        let number = levels.length+1;
+        while (levels.some(level => level.name.toLowerCase() === `level ${number}`)) number++;
+        levels.push({name:`Level ${number}`,goalSets:'',goalValue:''});
+      } else if (levelAction === 'advance') {
+        const index = levels.findIndex(level => level.name === userData[id].progression);
+        if (levels[index+1]) userData[id].progression = levels[index+1].name;
+      } else if (levelAction === 'back') {
+        const index = levels.findIndex(level => level.name === userData[id].progression);
+        if (levels[index-1]) userData[id].progression = levels[index-1].name;
+      }
+      saveData(STORAGE_KEY,userData);
+      const card = button.closest('.exercise-card');
+      const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][card.dataset.section][Number(card.dataset.exerciseIndex)];
+      refreshProgressionCard(card,id,ex);
+    };
     workoutDisplay.querySelectorAll('[data-field="video"]').forEach(attachVideoListener);
     workoutDisplay.querySelectorAll('[data-id][data-field]:not([data-field="video"])').forEach(input => {
       input.addEventListener(input.type === 'checkbox' ? 'change' : 'input', e => {
         const {id,field,index} = e.target.dataset;
-        if (field === 'progression') {
-          userData[id] ||= {};
-          userData[id].progression = e.target.value;
-          saveData(STORAGE_KEY,userData);
-          e.target.closest('details').querySelector('summary').textContent = 'Progression setting'+(e.target.value ? ' · '+e.target.value : '');
-          const card = e.target.closest('.exercise-card');
-          const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][card.dataset.section][Number(card.dataset.exerciseIndex)];
-          card.querySelector('.exercise-video').outerHTML = renderExerciseVideo(id,ex);
-          attachVideoListener(card.querySelector('.exercise-video input'));
-          return;
-        }
         const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][e.target.closest('.exercise-card').dataset.section][Number(e.target.closest('.exercise-card').dataset.exerciseIndex)];
         const entry = editExerciseEntry(id, ex);
+        entry.level ||= currentLevelName(id);
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         if (index !== undefined) entry.sets[Number(index)][field] = value;
         else entry[field] = value;
@@ -516,6 +672,8 @@
           if (countEl) countEl.textContent = `${progress.done} of ${progress.total} sets complete`;
           const finishBtn = workoutDisplay.querySelector('#finish-workout');
           if (finishBtn) finishBtn.disabled = progress.done === 0;
+          const status = e.target.closest('.exercise-card').querySelector('.level-progress');
+          if (status) status.textContent = progressionStatus(id,ex);
         } else if (field === 'notes' && index === undefined) {
           e.target.closest('details').querySelector('summary').textContent = 'Exercise notes'+(value ? ' · saved' : '');
         } else if (field === 'notes') {
@@ -528,6 +686,12 @@
       const card = button.closest('.exercise-card');
       const ex = WORKOUT_PROGRAMS[currentProgram].days[currentDay][card.dataset.section][Number(card.dataset.exerciseIndex)];
       const entry = editExerciseEntry(id, ex);
+      if (action === 'copy') {
+        const previous = previousEntryData(id);
+        if (!previous || entry.notes || entry.sets.some(set => set.done || set.reps || set.weight || set.notes)) return;
+        entry.sets = previous.entry.sets.filter(set => set.done || set.reps || set.weight).map(set => ({reps:set.reps || '',weight:set.weight || '',notes:'',done:false}));
+        entry.level = currentLevelName(id);
+      }
       if (action === 'add') entry.sets.push({reps:'',weight:'',notes:'',done:false});
       if (action === 'remove' && entry.sets.length > 1) entry.sets.splice(Number(index),1);
       saveData(STORAGE_KEY,userData);
@@ -563,7 +727,7 @@
     return `<section class="progress-panel" aria-label="Exercise progress">
       <h3>Exercise progress</h3><p class="muted">Completed sets from finished workouts for this training day. Latest 8 sessions.</p>
       <label for="progress-exercise">Exercise<select id="progress-exercise">${exercises.map(ex => `<option value="${escapeHtml(ex.id)}" ${ex.id===progressExerciseId?'selected':''}>${escapeHtml(ex.name)}</option>`).join('')}</select></label>
-      ${logged.length ? `<div class="progress-history">${logged.map(session => `<div class="progress-entry"><strong>${escapeHtml(session.date)}</strong><div>${sessionExerciseRows(session,progressExerciseId).map(set => `<div>Set ${set.number}: ${escapeHtml(set.reps || 'reps not entered')}${set.weight ? ` · ${escapeHtml(set.weight)} lb` : ''}${set.notes ? ` · ${escapeHtml(set.notes)}` : ''}</div>`).join('')}</div></div>`).join('')}</div>` : '<p class="muted">No finished sessions with completed sets for this exercise yet.</p>'}
+      ${logged.length ? `<div class="progress-history">${logged.map(session => `<div class="progress-entry"><strong>${escapeHtml(session.date)}</strong><div>${userData[progressExerciseId]?.entries?.[session.date]?.level ? `<small>Level: ${escapeHtml(userData[progressExerciseId].entries[session.date].level)}</small>` : ''}${sessionExerciseRows(session,progressExerciseId).map(set => `<div>Set ${set.number}: ${escapeHtml(set.reps || 'reps not entered')}${set.weight ? ` · ${escapeHtml(set.weight)} lb` : ''}${set.notes ? ` · ${escapeHtml(set.notes)}` : ''}</div>`).join('')}</div></div>`).join('')}</div>` : '<p class="muted">No finished sessions with completed sets for this exercise yet.</p>'}
     </section>`;
   }
 
@@ -574,9 +738,9 @@
         const name = WORKOUT_PROGRAMS[session.program].name;
         const day = WORKOUT_PROGRAMS[session.program].days[session.dayKey].name || session.dayKey;
         const count = setProgress(session.program,session.workout,session.dayKey,session.date);
-        const results = exerciseList(session.program,session.workout,session.dayKey).map(ex => ({...ex,rows:sessionExerciseRows(session,ex.id),notes:userData[ex.id]?.entries?.[session.date]?.notes || ''})).filter(ex => ex.rows.length || ex.notes);
+        const results = exerciseList(session.program,session.workout,session.dayKey).map(ex => ({...ex,rows:sessionExerciseRows(session,ex.id),notes:userData[ex.id]?.entries?.[session.date]?.notes || '',level:userData[ex.id]?.entries?.[session.date]?.level || ''})).filter(ex => ex.rows.length || ex.notes);
         return `<details class="history-session"><summary class="history-row"><span><strong>${escapeHtml(day)}</strong><small>${escapeHtml(name)} · ${escapeHtml(session.date)}</small></span><span>${count.done}/${count.total} sets · ${formatTime(elapsedSeconds(session))}</span></summary>
-          <div class="history-results">${results.map(ex => `<div class="history-exercise"><strong>${escapeHtml(ex.name)}</strong>${ex.rows.map(set => `<div>Set ${set.number}: ${escapeHtml(set.reps || 'reps not entered')}${set.weight ? ` · ${escapeHtml(set.weight)} lb` : ''}${set.notes ? ` · ${escapeHtml(set.notes)}` : ''}</div>`).join('')}${ex.notes ? `<div>Exercise note: ${escapeHtml(ex.notes)}</div>` : ''}</div>`).join('') || '<p class="muted">No exercise results saved.</p>'}
+          <div class="history-results">${results.map(ex => `<div class="history-exercise"><strong>${escapeHtml(ex.name)}</strong>${ex.level ? `<small>Level: ${escapeHtml(ex.level)}</small>` : ''}${ex.rows.map(set => `<div>Set ${set.number}: ${escapeHtml(set.reps || 'reps not entered')}${set.weight ? ` · ${escapeHtml(set.weight)} lb` : ''}${set.notes ? ` · ${escapeHtml(set.notes)}` : ''}</div>`).join('')}${ex.notes ? `<div>Exercise note: ${escapeHtml(ex.notes)}</div>` : ''}</div>`).join('') || '<p class="muted">No exercise results saved.</p>'}
             <button type="button" class="timer-btn" data-history-program="${escapeHtml(session.program)}" data-history-workout="${escapeHtml(session.workout)}" data-history-day="${escapeHtml(session.dayKey)}" data-history-date="${escapeHtml(session.date)}">Open workout log</button></div></details>`;
       }).join('') : '<p class="muted">Finish a workout to see it here.</p>'}</div></details>`;
     historyDisplay.querySelector('#progress-exercise')?.addEventListener('change', e => {
@@ -623,6 +787,8 @@
     const preferredDay = localStorage.getItem('atgplus_day_'+currentProgram+'_'+currentWorkout);
     if (!dayKeys.includes(currentDay)) currentDay = dayKeys.includes(preferredDay) ? preferredDay : dayKeys[0];
     const dayIndex = dayKeys.indexOf(currentDay);
+    const suggested = queuedDay(currentProgram,currentWorkout);
+    html += `<div class="next-queue"><div><small>UP NEXT IN THIS PROGRAM</small><strong>${escapeHtml(programData.days[suggested]?.name || suggested)}</strong><span>Open it when ready, or skip to the following session.</span></div><div><button type="button" class="timer-btn" id="open-next">Open next</button><button type="button" class="timer-btn" id="skip-next" ${dayKeys.length===1?'disabled':''}>Skip</button></div></div>`;
     html += `${dayKeys.length > 1 ? `<div class="session-nav"><strong>Sessions · ${dayIndex+1} of ${dayKeys.length}</strong><div><button type="button" class="timer-btn" data-step-day="-1" ${dayIndex===0?'disabled':''}>← Previous</button><button type="button" class="timer-btn" data-step-day="1" ${dayIndex===dayKeys.length-1?'disabled':''}>Next →</button></div></div>` : '<div class="session-nav"><strong>Session</strong></div>'}<div class="session-picker ${dayKeys.length===1?'single':''}" aria-label="Program sessions">${dayKeys.map((key,index) => {
       const session = sessionData[getSessionRecordKey(currentProgram,currentWorkout,key,selectedDate)];
       const state = session?.status === 'completed' ? 'Finished' : session ? 'In progress' : 'Not started';
@@ -680,6 +846,8 @@
           const id = getExerciseId(currentProgram, currentWorkout, dayKey, sectionKey, idx);
           const saved = getExerciseEntry(id, ex);
           const previous = previousEntry(id);
+          const previousData = previousEntryData(id);
+          const canCopy = previousData && !saved.notes && saved.sets.every(set => !set.done && !set.reps && !set.weight && !set.notes);
           const field = (key,placeholder,value,index) => key === 'notes'
             ? `<textarea rows="2" aria-label="${escapeHtml(ex.name)} set ${index+1} note" placeholder="${escapeHtml(placeholder)}" data-id="${escapeHtml(id)}" data-index="${index}" data-field="${key}">${escapeHtml(value || '')}</textarea>`
             : `<input type="text" inputmode="${key === 'weight' ? 'decimal' : 'text'}" aria-label="${escapeHtml(ex.name)} set ${index+1} ${key}" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(value || '')}" data-id="${escapeHtml(id)}" data-index="${index}" data-field="${key}">`;
@@ -688,9 +856,10 @@
               <div class="exercise-top">
                 <div><strong>${escapeHtml(ex.name || '')}</strong><div class="exercise-target">Target: ${prescribedSetCount(ex)} set${prescribedSetCount(ex)===1?'':'s'} · ${escapeHtml(ex.reps || 'as prescribed')}</div>${ex.notes ? `<div class="note">${escapeHtml(ex.notes)}</div>` : ''}</div>
               </div>
-              <details class="progression-settings"><summary>Progression setting${userData[id]?.progression ? ` · ${escapeHtml(userData[id].progression)}` : ''}</summary><label>Current variation or level<input type="text" aria-label="${escapeHtml(ex.name)} current progression" placeholder="For example: assisted, bodyweight, level 2" value="${escapeHtml(userData[id]?.progression || '')}" data-id="${escapeHtml(id)}" data-field="progression"></label></details>
+              ${renderProgression(id,ex)}
               ${renderExerciseVideo(id,ex)}
               ${previous ? `<div class="previous-log">${escapeHtml(previous)}</div>` : ''}
+              ${canCopy ? `<button type="button" class="timer-btn copy-last" data-id="${escapeHtml(id)}" data-action="copy">Copy last results · ${escapeHtml(previousData.date)}</button>` : ''}
               <div class="set-list">${saved.sets.map((set,i) => `<div class="set-row ${set.done?'checked':''}">
                 <label class="set-check">${i+1}<input type="checkbox" aria-label="${escapeHtml(ex.name)} set ${i+1} complete" data-id="${escapeHtml(id)}" data-index="${i}" data-field="done" ${set.done?'checked':''}></label>
                 <label>Reps / time${field('reps',ex.reps || '—',set.reps,i)}</label>
@@ -725,6 +894,7 @@
       version: 2,
       userData,
       sessionData,
+      queueData,
       morningData: loadData('morning_mobility_shoulder_v1'),
       mobilityData: loadData('mobility_sessions_v1'),
       prepData: prepLog,
@@ -752,11 +922,13 @@
 
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(QUEUE_KEY);
 
     Object.values(timerIntervals).forEach(clearInterval);
     timerIntervals = {};
     userData = {};
     sessionData = {};
+    queueData = {};
 
     renderWorkout();
   };
@@ -772,11 +944,13 @@
         if (!confirm('Import this backup? It will replace current workout logs on this device. Export your current data first if needed.')) return;
         userData = parsed.userData;
         sessionData = parsed.sessionData;
+        queueData = parsed.queueData && typeof parsed.queueData === 'object' && !Array.isArray(parsed.queueData) ? parsed.queueData : {};
         Object.values(sessionData).forEach(session=>{if(session && typeof session==='object'){session.running=false;delete session.startTime;}});
         Object.values(timerIntervals).forEach(clearInterval);
         timerIntervals = {};
         saveData(STORAGE_KEY, userData);
         saveData(SESSION_KEY, sessionData);
+        saveData(QUEUE_KEY,queueData);
         if (parsed.morningData && typeof parsed.morningData === 'object' && !Array.isArray(parsed.morningData)) saveData('morning_mobility_shoulder_v1',parsed.morningData);
         if (parsed.mobilityData && typeof parsed.mobilityData === 'object' && !Array.isArray(parsed.mobilityData)) saveData('mobility_sessions_v1',parsed.mobilityData);
         if (parsed.prepData && typeof parsed.prepData === 'object' && !Array.isArray(parsed.prepData)){prepLog=parsed.prepData;savePrep();}
