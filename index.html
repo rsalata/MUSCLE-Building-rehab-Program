@@ -119,6 +119,7 @@
     .session-picker{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;margin-bottom:10px;scrollbar-width:thin}
     .session-choice{flex:0 0 190px;min-height:76px;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--ring);background:var(--panel);color:var(--text);font:inherit;cursor:pointer}
     .session-choice.selected{border-color:var(--acc);background:#102432}
+    .session-picker.single .session-choice{flex:1 1 auto;min-height:58px}
     .session-choice strong{display:block;font-size:14px;line-height:1.25}
     .session-choice small{display:block;color:var(--muted);font-size:12px;margin-top:5px}
     .day-title{display:block;margin:0 0 14px}
@@ -374,7 +375,7 @@
   })();
   </script>
   <script src="workout-data.js"></script>
-  <script src="workout-app.js?v=22"></script>
+  <script src="workout-app.js?v=23"></script>
   <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

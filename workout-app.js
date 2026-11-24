@@ -623,10 +623,11 @@
     const preferredDay = localStorage.getItem('atgplus_day_'+currentProgram+'_'+currentWorkout);
     if (!dayKeys.includes(currentDay)) currentDay = dayKeys.includes(preferredDay) ? preferredDay : dayKeys[0];
     const dayIndex = dayKeys.indexOf(currentDay);
-    html += `<div class="session-nav"><strong>Sessions · ${dayIndex+1} of ${dayKeys.length}</strong><div><button type="button" class="timer-btn" data-step-day="-1" ${dayIndex===0?'disabled':''}>← Previous</button><button type="button" class="timer-btn" data-step-day="1" ${dayIndex===dayKeys.length-1?'disabled':''}>Next →</button></div></div><div class="session-picker" aria-label="Program sessions">${dayKeys.map((key,index) => {
+    html += `${dayKeys.length > 1 ? `<div class="session-nav"><strong>Sessions · ${dayIndex+1} of ${dayKeys.length}</strong><div><button type="button" class="timer-btn" data-step-day="-1" ${dayIndex===0?'disabled':''}>← Previous</button><button type="button" class="timer-btn" data-step-day="1" ${dayIndex===dayKeys.length-1?'disabled':''}>Next →</button></div></div>` : '<div class="session-nav"><strong>Session</strong></div>'}<div class="session-picker ${dayKeys.length===1?'single':''}" aria-label="Program sessions">${dayKeys.map((key,index) => {
       const session = sessionData[getSessionRecordKey(currentProgram,currentWorkout,key,selectedDate)];
       const state = session?.status === 'completed' ? 'Finished' : session ? 'In progress' : 'Not started';
-      return `<button type="button" class="session-choice ${key===currentDay?'selected':''}" data-choose-day="${escapeHtml(key)}" aria-pressed="${key===currentDay}"><strong>${index+1}. ${escapeHtml(programData.days[key].name || key)}</strong><small>${state} · ${setProgress(currentProgram,currentWorkout,key,selectedDate).done} sets</small></button>`;
+      const completedSets = setProgress(currentProgram,currentWorkout,key,selectedDate).done;
+      return `<button type="button" class="session-choice ${key===currentDay?'selected':''}" data-choose-day="${escapeHtml(key)}" aria-pressed="${key===currentDay}"><strong>${index+1}. ${escapeHtml(programData.days[key].name || key)}</strong><small>${state} · ${completedSets} ${completedSets===1?'set':'sets'}</small></button>`;
     }).join('')}</div><div class="workout-toolbar"><label for="log-date">Session date<input id="log-date" type="date" value="${selectedDate}"></label><button type="button" class="timer-btn" id="today-date">Today</button></div>`;
 
     dayKeys.filter(key => key === currentDay).forEach(dayKey => {
