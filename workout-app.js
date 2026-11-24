@@ -73,6 +73,14 @@
   userData = loadData(STORAGE_KEY);
   sessionData = loadData(SESSION_KEY);
   queueData = loadData(QUEUE_KEY);
+  let addedLegacyLevels = false;
+  Object.values(userData).forEach(record => Object.values(record?.entries || {}).forEach(entry => {
+    if (!entry.level && (entry.notes || entry.sets?.some(set => set.done || set.reps || set.weight || set.notes))) {
+      entry.level = record.progression || 'Level 1';
+      addedLegacyLevels = true;
+    }
+  }));
+  if (addedLegacyLevels) saveData(STORAGE_KEY,userData);
   // Old timers were keyed only by training day. Keep their elapsed time as unfinished sessions.
   Object.entries(sessionData).forEach(([key, session]) => {
     if (key.includes('|') || !session?.date) return;
@@ -172,7 +180,7 @@
     const index = Math.max(0,levels.findIndex(step => step.name === current));
     const step = levels[index];
     return `<details class="progression-settings"><summary>Progression · ${escapeHtml(current)}${levels[index+1] ? ` → ${escapeHtml(levels[index+1].name)}` : ''}<small class="level-progress">${escapeHtml(progressionStatus(id,ex))}</small></summary>
-      <div class="level-list">${levels.map((level,i) => `<div class="level-row ${i===index?'current':''}"><strong>${i===index?'Current':i<index?'Previous':'Next'} · ${i+1}</strong>
+      <div class="level-list">${levels.map((level,i) => `<div class="level-row ${i===index?'current':''}"><strong>${i===index?'Current':i<index?'Previous':'Next'} · ${i+1}</strong>${levels.length>1 ? `<button type="button" class="timer-btn level-remove" data-id="${escapeHtml(id)}" data-level-action="remove" data-level-index="${i}" aria-label="Remove ${escapeHtml(level.name)} level">Remove</button>` : ''}
         <label>Level name<input type="text" aria-label="${escapeHtml(ex.name)} level ${i+1} name" value="${escapeHtml(level.name)}" data-id="${escapeHtml(id)}" data-level-index="${i}" data-level-field="name"></label>
         <label>Goal sets<input type="number" min="1" max="20" aria-label="${escapeHtml(ex.name)} level ${i+1} goal sets" placeholder="${prescribedSetCount(ex)}" value="${escapeHtml(level.goalSets || '')}" data-id="${escapeHtml(id)}" data-level-index="${i}" data-level-field="goalSets"></label>
         <label>Minimum reps/time number per set<input type="number" min="0" step="any" aria-label="${escapeHtml(ex.name)} level ${i+1} goal reps or time" placeholder="Optional" value="${escapeHtml(level.goalValue || '')}" data-id="${escapeHtml(id)}" data-level-index="${i}" data-level-field="goalValue"></label>
@@ -647,6 +655,13 @@
       } else if (levelAction === 'back') {
         const index = levels.findIndex(level => level.name === userData[id].progression);
         if (levels[index-1]) userData[id].progression = levels[index-1].name;
+      } else if (levelAction === 'remove' && levels.length > 1) {
+        const index = Number(button.dataset.levelIndex);
+        const removed = levels[index];
+        if (!removed || !confirm(`Remove the “${removed.name}” progression step?`)) return;
+        levels.splice(index,1);
+        if (userData[id].progression === removed.name) userData[id].progression = levels[Math.max(0,index-1)].name;
+        if (userData[id].videos) delete userData[id].videos[removed.name];
       }
       saveData(STORAGE_KEY,userData);
       const card = button.closest('.exercise-card');

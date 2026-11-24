@@ -189,7 +189,8 @@
     .level-list{display:grid;gap:10px;margin-top:12px}
     .level-row{display:grid;grid-template-columns:minmax(130px,1.2fr) 90px minmax(130px,1.2fr);gap:8px;padding:10px;border:1px solid var(--ring);background:#111624;border-radius:9px}
     .level-row.current{border-color:var(--acc)}
-    .level-row>strong{grid-column:1/-1;color:var(--acc);font-size:13px}
+    .level-row>strong{grid-column:1/3;color:var(--acc);font-size:13px}
+    .level-remove{grid-column:3;grid-row:1;min-height:32px;justify-self:end;color:var(--muted)}
     .level-row label{min-width:0;margin:0;font-size:12px}
     .level-row .level-video{grid-column:1/-1}
     .level-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
@@ -221,6 +222,8 @@
       .progress-entry{grid-template-columns:1fr;gap:4px}
       .history-row{align-items:flex-start;flex-direction:column}
       .level-row{grid-template-columns:1fr 1fr}
+      .level-row>strong{grid-column:1}
+      .level-remove{grid-column:2}
       .level-row label:first-of-type,.level-row .level-video{grid-column:1/-1}
     }
   </style>
@@ -394,7 +397,7 @@
   })();
   </script>
   <script src="workout-data.js"></script>
-  <script src="workout-app.js?v=24"></script>
+  <script src="workout-app.js?v=25"></script>
   <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
