@@ -26,6 +26,25 @@
   const workoutLabel = document.getElementById('workout-label');
   const workoutDisplay = document.getElementById('workout-display');
   const historyDisplay = document.getElementById('history-display');
+  const workoutViewButton = document.getElementById('view-workout');
+  const historyViewButton = document.getElementById('view-history');
+  const backToSessionButton = document.getElementById('back-to-session');
+
+  function setView(view, scroll = true) {
+    const history = view === 'history';
+    workoutDisplay.hidden = history;
+    historyDisplay.hidden = !history;
+    workoutViewButton.classList.toggle('active',!history);
+    historyViewButton.classList.toggle('active',history);
+    workoutViewButton.setAttribute('aria-current',history ? 'false' : 'page');
+    historyViewButton.setAttribute('aria-current',history ? 'page' : 'false');
+    if (scroll) window.scrollTo({top:0,behavior:'smooth'});
+    updateBackToSession();
+  }
+
+  function updateBackToSession() {
+    backToSessionButton.classList.toggle('visible',window.scrollY > 550 || !historyDisplay.hidden);
+  }
 
   // =========================
   // LOCAL STORAGE
@@ -445,16 +464,29 @@
   }
 
   function attachInputListeners() {
-    workoutDisplay.querySelector('#day-select')?.addEventListener('change', e => {
-      currentDay = e.target.value;
+    workoutDisplay.querySelectorAll('[data-choose-day]').forEach(button => button.addEventListener('click', () => {
+      currentDay = button.dataset.chooseDay;
       localStorage.setItem('atgplus_day_'+currentProgram+'_'+currentWorkout, currentDay);
       renderWorkout();
-    });
+      workoutDisplay.scrollIntoView({behavior:'smooth',block:'start'});
+    }));
+    workoutDisplay.querySelectorAll('[data-step-day]').forEach(button => button.addEventListener('click', () => {
+      const keys = Object.keys(WORKOUT_PROGRAMS[currentProgram].days);
+      currentDay = keys[keys.indexOf(currentDay)+Number(button.dataset.stepDay)];
+      localStorage.setItem('atgplus_day_'+currentProgram+'_'+currentWorkout,currentDay);
+      renderWorkout();
+      workoutDisplay.scrollIntoView({behavior:'smooth',block:'start'});
+    }));
     workoutDisplay.querySelector('#log-date')?.addEventListener('change', e => {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) return;
       selectedDate = e.target.value;
       renderWorkout();
     });
+    workoutDisplay.querySelector('#today-date')?.addEventListener('click', () => {
+      selectedDate = localDate();
+      renderWorkout();
+    });
+    workoutDisplay.querySelector('#show-history')?.addEventListener('click', () => setView('history'));
     workoutDisplay.querySelectorAll('[data-field="video"]').forEach(attachVideoListener);
     workoutDisplay.querySelectorAll('[data-id][data-field]:not([data-field="video"])').forEach(input => {
       input.addEventListener(input.type === 'checkbox' ? 'change' : 'input', e => {
@@ -486,6 +518,8 @@
           if (finishBtn) finishBtn.disabled = progress.done === 0;
         } else if (field === 'notes' && index === undefined) {
           e.target.closest('details').querySelector('summary').textContent = 'Exercise notes'+(value ? ' · saved' : '');
+        } else if (field === 'notes') {
+          e.target.closest('.set-note').querySelector('summary').textContent = value ? 'Note saved' : 'Add note';
         }
       });
     });
@@ -559,7 +593,7 @@
       currentDay = button.dataset.historyDay;
       selectedDate = button.dataset.historyDate;
       renderWorkout();
-      workoutDisplay.scrollIntoView({behavior:'smooth',block:'start'});
+      setView('workout');
     }));
   }
 
@@ -577,7 +611,7 @@
 
     programBadge.textContent = programData.name || currentProgram;
 
-    let html = `<h2 style="margin:0 0 6px">${escapeHtml(programData.name || currentProgram)}</h2><p class="muted" style="margin:0 0 16px">Choose a day and log each set as you complete it.</p>`;
+    let html = `<h2 style="margin:0 0 6px">${escapeHtml(programData.name || currentProgram)}</h2><p class="muted" style="margin:0 0 16px">Choose a session, then log each set as you complete it.</p>`;
 
     const dayKeys = Object.keys(programData.days || {});
 
@@ -588,7 +622,12 @@
 
     const preferredDay = localStorage.getItem('atgplus_day_'+currentProgram+'_'+currentWorkout);
     if (!dayKeys.includes(currentDay)) currentDay = dayKeys.includes(preferredDay) ? preferredDay : dayKeys[0];
-    html += `<div class="workout-toolbar"><label for="day-select">Training day<select id="day-select">${dayKeys.map(key => `<option value="${escapeHtml(key)}" ${key===currentDay?'selected':''}>${escapeHtml(programData.days[key].name || key)}</option>`).join('')}</select></label><label for="log-date">Log date<input id="log-date" type="date" value="${selectedDate}"></label></div>`;
+    const dayIndex = dayKeys.indexOf(currentDay);
+    html += `<div class="session-nav"><strong>Sessions · ${dayIndex+1} of ${dayKeys.length}</strong><div><button type="button" class="timer-btn" data-step-day="-1" ${dayIndex===0?'disabled':''}>← Previous</button><button type="button" class="timer-btn" data-step-day="1" ${dayIndex===dayKeys.length-1?'disabled':''}>Next →</button></div></div><div class="session-picker" aria-label="Program sessions">${dayKeys.map((key,index) => {
+      const session = sessionData[getSessionRecordKey(currentProgram,currentWorkout,key,selectedDate)];
+      const state = session?.status === 'completed' ? 'Finished' : session ? 'In progress' : 'Not started';
+      return `<button type="button" class="session-choice ${key===currentDay?'selected':''}" data-choose-day="${escapeHtml(key)}" aria-pressed="${key===currentDay}"><strong>${index+1}. ${escapeHtml(programData.days[key].name || key)}</strong><small>${state} · ${setProgress(currentProgram,currentWorkout,key,selectedDate).done} sets</small></button>`;
+    }).join('')}</div><div class="workout-toolbar"><label for="log-date">Session date<input id="log-date" type="date" value="${selectedDate}"></label><button type="button" class="timer-btn" id="today-date">Today</button></div>`;
 
     dayKeys.filter(key => key === currentDay).forEach(dayKey => {
       const day = programData.days[dayKey];
@@ -612,7 +651,7 @@
             ${session?.status === 'in_progress' ? `<button class="timer-btn finish-btn" id="finish-workout" onclick="finishWorkout('${recordKey}')" ${progress.done ? '' : 'disabled'}>Finish workout</button>` : ''}
           </div>
         </div>
-        <div class="workout-progress"><span id="set-progress" aria-live="polite">${progress.done} of ${progress.total} sets complete</span><a href="#history-display">Progress & history ↓</a></div>
+        <div class="workout-progress"><span id="set-progress" aria-live="polite">${progress.done} of ${progress.total} sets complete</span><button type="button" id="show-history">View progress & history</button></div>
       `;
 
       html += renderPrep(sessionId,prepDayType(currentProgram,dayKey,day),'warm');
@@ -655,8 +694,8 @@
                 <label class="set-check">${i+1}<input type="checkbox" aria-label="${escapeHtml(ex.name)} set ${i+1} complete" data-id="${escapeHtml(id)}" data-index="${i}" data-field="done" ${set.done?'checked':''}></label>
                 <label>Reps / time${field('reps',ex.reps || '—',set.reps,i)}</label>
                 <label>Weight (lb)${field('weight','—',set.weight,i)}</label>
-                <label class="set-note">Set note${field('notes','Optional',set.notes,i)}</label>
                 <button type="button" class="timer-btn remove-set" aria-label="Remove set ${i+1} from ${escapeHtml(ex.name)}" title="Remove set" data-id="${escapeHtml(id)}" data-action="remove" data-index="${i}" ${saved.sets.length===1?'disabled':''}>×</button>
+                <details class="set-note" ${set.notes?'open':''}><summary>${set.notes?'Note saved':'Add note'}</summary><label>Set note${field('notes','Optional',set.notes,i)}</label></details>
               </div>`).join('')}</div>
               <button type="button" class="timer-btn" data-id="${escapeHtml(id)}" data-action="add">+ Add set</button>
               <details class="exercise-notes" ${saved.notes ? 'open' : ''}><summary>Exercise notes${saved.notes ? ' · saved' : ''}</summary><textarea rows="2" aria-label="${escapeHtml(ex.name)} exercise notes" placeholder="Form, symptoms, or adjustments" data-id="${escapeHtml(id)}" data-field="notes">${escapeHtml(saved.notes || '')}</textarea></details>
@@ -758,6 +797,7 @@
     localStorage.setItem(PREF_KEY,currentProgram);
     updateWorkoutSelector(currentProgram);
     renderWorkout();
+    setView('workout');
   });
 
   workoutSelect.addEventListener('change', e => {
@@ -765,7 +805,13 @@
     currentDay = '';
     localStorage.setItem('atgplus_workout_'+currentProgram,currentWorkout);
     renderWorkout();
+    setView('workout');
   });
+
+  workoutViewButton.addEventListener('click', () => setView('workout'));
+  historyViewButton.addEventListener('click', () => setView('history'));
+  backToSessionButton.addEventListener('click', () => setView('workout'));
+  window.addEventListener('scroll',updateBackToSession,{passive:true});
 
   // =========================
   // INITIALIZE
@@ -774,5 +820,9 @@
   populateProgramSelector();
   updateWorkoutSelector(currentProgram);
   renderWorkout();
+  setView('workout',false);
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (location.hash === '#history-display') history.replaceState(null,'',location.pathname+location.search);
+  window.addEventListener('load', () => window.scrollTo(0,0),{once:true});
 
 })();
