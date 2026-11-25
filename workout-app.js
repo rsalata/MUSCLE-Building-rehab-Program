@@ -362,7 +362,7 @@
     mixed:{warm:['ninety','bike','ankle','scap','hinge'],cool:['calf','breathe']}
   };
   function prepSteps(type,phase){return PREP_PLANS[type]?.[phase]||PREP_PLANS.mixed[phase]}
-  function prepKey(sessionId,kind){return new Date().toLocaleDateString('en-CA')+'|'+sessionId+'|'+kind}
+  function prepKey(sessionId,kind){return selectedDate+'|'+sessionId+'|'+kind}
   function prepEntry(id){return prepLog[id]||{checked:[],notes:''}}
   function savePrep(){try{localStorage.setItem(PREP_KEY,JSON.stringify(prepLog))}catch(e){console.warn('Preparation save failed',e)}}
   function renderPrep(sessionId,type,phase){
@@ -379,7 +379,7 @@
         <label class="prep-note-label">How did it feel? <input type="text" data-prep-note="${escapeHtml(key)}" placeholder="Optional: stiffness, pain, modifications" value="${escapeHtml(state.notes||'')}"></label>
       </details>`;
     };
-    return phase==='warm' ? `<div class="prep-wrap">${group('warm',warm,'Prepare · 5–8 min','Suggested preparation for this workout. Skip or modify movements that provoke symptoms.')}</div>` : `<div class="prep-wrap">${group('cool',cool,'Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
+    return phase==='warm' ? `<div class="prep-wrap">${group('warm',warm,'Optional warmup · 5–8 min','Do any of these before lifting, or go straight to the exercise sets below. Warmup checks are separate from your workout log.')}</div>` : `<div class="prep-wrap">${group('cool',cool,'Optional cooldown · 3–5 min','Gentle movement after training; not required to complete the workout.')}</div>`;
   }
   function attachPrepListeners(){
     workoutDisplay.querySelectorAll('[data-prep-key]').forEach(el=>el.addEventListener('change',()=>{
@@ -575,6 +575,7 @@
       saveData(QUEUE_KEY,queueData);
       currentDay = queuedDay(currentProgram,currentWorkout);
       localStorage.setItem('atgplus_day_'+currentProgram+'_'+currentWorkout,currentDay);
+      selectedDate = localDate();
       renderWorkout();
       workoutDisplay.scrollIntoView({behavior:'smooth',block:'start'});
     });
@@ -803,7 +804,8 @@
     if (!dayKeys.includes(currentDay)) currentDay = dayKeys.includes(preferredDay) ? preferredDay : dayKeys[0];
     const dayIndex = dayKeys.indexOf(currentDay);
     const suggested = queuedDay(currentProgram,currentWorkout);
-    html += `<div class="next-queue"><div><small>UP NEXT IN THIS PROGRAM</small><strong>${escapeHtml(programData.days[suggested]?.name || suggested)}</strong><span>Open it when ready, or skip to the following session.</span></div><div><button type="button" class="timer-btn" id="open-next">Open next</button><button type="button" class="timer-btn" id="skip-next" ${dayKeys.length===1?'disabled':''}>Skip</button></div></div>`;
+    const afterSuggested = nextDayAfter(currentProgram,suggested);
+    html += `<div class="next-queue"><div><small>UP NEXT IN THIS PROGRAM</small><strong>${escapeHtml(programData.days[suggested]?.name || suggested)}</strong><span>${dayKeys.length > 1 ? 'Skipping opens the following workout. The skipped workout stays in the program and is not marked finished.' : 'This program repeats the same workout.'}</span></div><div><button type="button" class="timer-btn" id="open-next">Open workout</button>${dayKeys.length > 1 ? `<button type="button" class="timer-btn" id="skip-next">Skip to ${escapeHtml(programData.days[afterSuggested]?.name || afterSuggested)}</button>` : ''}</div></div>`;
     html += `${dayKeys.length > 1 ? `<div class="session-nav"><strong>Sessions · ${dayIndex+1} of ${dayKeys.length}</strong><div><button type="button" class="timer-btn" data-step-day="-1" ${dayIndex===0?'disabled':''}>← Previous</button><button type="button" class="timer-btn" data-step-day="1" ${dayIndex===dayKeys.length-1?'disabled':''}>Next →</button></div></div>` : '<div class="session-nav"><strong>Session</strong></div>'}<div class="session-picker ${dayKeys.length===1?'single':''}" aria-label="Program sessions">${dayKeys.map((key,index) => {
       const session = sessionData[getSessionRecordKey(currentProgram,currentWorkout,key,selectedDate)];
       const state = session?.status === 'completed' ? 'Finished' : session ? 'In progress' : 'Not started';
